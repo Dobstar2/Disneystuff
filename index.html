@@ -13,24 +13,26 @@
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <style>
     :root {
-      --primary: #6366f1;
-      --secondary: #9333ea;
+      --primary: #7c3aed;
+      --secondary: #22d3ee;
       --accent: #f472b6;
       --success: #22c55e;
       --warning: #facc15;
-      --bg-dark: #1e1b4b;
-      --bg-card: rgba(255, 255, 255, 0.08);
+      --bg-dark: #0f172a;
+      --bg-card: rgba(255, 255, 255, 0.07);
       --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.8);
+      --text-secondary: rgba(255, 255, 255, 0.85);
       --glass-bg: rgba(255, 255, 255, 0.12);
       --glass-border: rgba(255, 255, 255, 0.25);
-      --shadow-glow: 0 8px 30px rgba(99, 102, 241, 0.3);
+      --shadow-glow: 0 8px 32px rgba(124, 58, 237, 0.35);
       --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.1);
+      --bg-gradient-start: #0f172a;
+      --bg-gradient-end: #312e81;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: linear-gradient(135deg, #6366f1 0%, #9333ea 100%);
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
       color: var(--text-primary);
       min-height: 100vh;
       min-height: 100dvh;
@@ -45,7 +47,7 @@
     }
     .bg-animated {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-      background: linear-gradient(135deg, #6366f1 0%, #9333ea 50%, #f472b6 100%);
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--primary) 50%, var(--accent) 100%);
       background-size: 400% 400%; animation: gradientShift 10s ease infinite;
     }
     .bg-animated::before {
@@ -84,7 +86,7 @@
       border-radius: 20px; box-shadow: var(--shadow-glow); transition: all 0.3s ease;
     }
     .glass-card:hover {
-      transform: translateY(-5px); box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+      transform: translateY(-5px); box-shadow: 0 12px 40px rgba(124, 58, 237, 0.4);
     }
     .page {
       display: none;
@@ -99,7 +101,7 @@
     }
     h1 {
       font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; text-align: center; margin-bottom: 1rem;
-      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
       background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       text-shadow: 0 0 30px rgba(240, 147, 251, 0.5);
     }
@@ -115,6 +117,7 @@
       border-radius: 20px; padding: 2rem; font-size: 1.3rem; font-weight: 700; color: var(--text-primary);
       cursor: pointer; display: flex; align-items: center; justify-content: center;
       gap: 1rem; min-height: 120px; position: relative; overflow: hidden; touch-action: manipulation;
+      box-shadow: var(--shadow-soft);
     }
     .menu-btn::before {
       content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
@@ -122,7 +125,7 @@
     }
     .menu-btn:hover::before { left: 100%; }
     .menu-btn:hover {
-      transform: translateY(-8px); box-shadow: 0 15px 45px rgba(102, 126, 234, 0.4); border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-8px); box-shadow: 0 15px 45px rgba(124, 58, 237, 0.4); border-color: rgba(255, 255, 255, 0.3);
     }
     .menu-btn:active { transform: translateY(-5px) scale(0.98); }
     .menu-btn .emoji { font-size: 2.5rem; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)); }
@@ -131,16 +134,16 @@
       outline-offset: 2px;
     }
     .reset-btn {
-      margin: 4rem auto 0; background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+      margin: 4rem auto 0; background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
       color: white; border: none; border-radius: 15px; font-size: 1.1rem; padding: 1rem 2.5rem; font-weight: 600;
       cursor: pointer; display: block; box-shadow: var(--shadow-glow); touch-action: manipulation;
     }
     .reset-btn:hover {
-      transform: translateY(-3px); box-shadow: 0 10px 35px rgba(240, 147, 251, 0.4);
+      transform: translateY(-3px); box-shadow: 0 10px 35px rgba(124, 58, 237, 0.4);
     }
     .park-title {
       font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; text-align: center; margin: 2rem 0;
-      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%);
       background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     .back-btn {
@@ -154,7 +157,7 @@
     }
     .section-header::after {
       content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
-      width: 60px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--primary)); border-radius: 2px;
+      width: 60px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--secondary)); border-radius: 2px;
     }
     .land-header {
       font-size: 1.3rem; font-weight: 700; margin: 2rem 0 1rem 0; color: var(--warning); padding-left: 1rem;
@@ -171,12 +174,12 @@
     }
     .secret-card::before, .ride-card::before {
       content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-      background: linear-gradient(180deg, var(--accent), var(--primary)); transition: width 0.3s ease;
+      background: linear-gradient(180deg, var(--accent), var(--secondary)); transition: width 0.3s ease;
     }
     .secret-card:hover::before, .ride-card:hover::before { width: 8px; }
     .secret-card:hover, .ride-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.4);
+      box-shadow: 0 12px 40px rgba(124, 58, 237, 0.4);
       border-color: rgba(255, 255, 255, 0.3);
     }
     .secret-card.done, .ride-card.done {
@@ -225,7 +228,7 @@
       font-size: 1.1rem; font-weight: 600; padding: 1rem 2rem; cursor: pointer; box-shadow: var(--shadow-soft);
     }
     .modal-btn:hover {
-      transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
     }
     @media (max-width: 768px) {
       .container { padding: 1rem;}
