@@ -1,222 +1,1706 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enchanted Park Companion</title>
-<link rel="manifest" href="manifest.json">
-<style>
-  body{font-family:sans-serif;margin:0;background:#fefefe;color:#222;}
-  header{background:linear-gradient(90deg,#0d47a1,#1976d2);color:#fff;padding:1rem;text-align:center;}
-  main{padding:1rem;max-width:900px;margin:auto;}
-  h2{margin-top:2rem;}
-  .park{border:1px solid #ccc;border-radius:8px;padding:1rem;margin-bottom:1rem;background:#fff;}
-  .rides li.completed{text-decoration:line-through;}
-  .filters{display:flex;gap:0.5rem;margin-bottom:0.5rem;}
-  .food li{cursor:pointer;}
-  .food li.fav{font-weight:bold;color:#c62828;}
-  .planner{display:flex;gap:1rem;}
-  .dropzone{flex:1;border:1px dashed #999;padding:0.5rem;min-height:60px;}
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;}
-  .modal-content{background:#fff;padding:1rem;border-radius:8px;text-align:center;}
-  footer{text-align:center;padding:1rem;background:#0d47a1;color:#fff;margin-top:2rem;}
-</style>
+  <meta charset="UTF-8">
+  <title>Dobbies Magical Park Guide</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Dobbies Guide">
+  <meta name="apple-touch-fullscreen" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #9333ea;
+      --accent: #f472b6;
+      --success: #22c55e;
+      --warning: #facc15;
+      --bg-dark: #1e1b4b;
+      --bg-card: rgba(255, 255, 255, 0.08);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.8);
+      --glass-bg: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.25);
+      --shadow-glow: 0 8px 30px rgba(99, 102, 241, 0.3);
+      --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #6366f1 0%, #9333ea 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      -webkit-touch-callout: none;
+    }
+    .bg-animated {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+      background: linear-gradient(135deg, #6366f1 0%, #9333ea 50%, #f472b6 100%);
+      background-size: 400% 400%; animation: gradientShift 10s ease infinite;
+    }
+    .bg-animated::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                  radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+      animation: floatingOrbs 15s ease-in-out infinite;
+    }
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    @keyframes floatingOrbs {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(30px, -30px) rotate(120deg); }
+      66% { transform: translate(-20px, 20px) rotate(240deg); }
+    }
+    .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+    .particle {
+      position: absolute; width: 4px; height: 4px; background: rgba(255, 255, 255, 0.6); border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 1; }
+      50% { transform: translateY(-20px) rotate(180deg); opacity: 0.5; }
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; position: relative; z-index: 2; }
+    .glass-card {
+      will-change: transform;
+      -webkit-backdrop-filter: blur(25px) saturate(1.2);
+      background: var(--glass-bg);
+      backdrop-filter: blur(25px) saturate(1.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px; box-shadow: var(--shadow-glow); transition: all 0.3s ease;
+    }
+    .glass-card:hover {
+      transform: translateY(-5px); box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4);
+    }
+    .page {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .page.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; text-align: center; margin-bottom: 1rem;
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(240, 147, 251, 0.5);
+    }
+    .subtitle { text-align: center; font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-secondary);}
+    .author { text-align: center; font-size: 1rem; font-weight: 400; margin-bottom: 3rem; color: var(--text-secondary); line-height: 1.6;}
+    .main-menu-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem;
+    }
+    .menu-btn {
+      -webkit-backdrop-filter: blur(20px);
+      will-change: transform;
+      background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 2rem; font-size: 1.3rem; font-weight: 700; color: var(--text-primary);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 1rem; min-height: 120px; position: relative; overflow: hidden; touch-action: manipulation;
+    }
+    .menu-btn::before {
+      content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    }
+    .menu-btn:hover::before { left: 100%; }
+    .menu-btn:hover {
+      transform: translateY(-8px); box-shadow: 0 15px 45px rgba(102, 126, 234, 0.4); border-color: rgba(255, 255, 255, 0.3);
+    }
+    .menu-btn:active { transform: translateY(-5px) scale(0.98); }
+    .menu-btn .emoji { font-size: 2.5rem; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3)); }
+    .menu-btn:focus, .back-btn:focus, .reset-btn:focus, .modal-btn:focus, .camera-btn:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .reset-btn {
+      margin: 4rem auto 0; background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+      color: white; border: none; border-radius: 15px; font-size: 1.1rem; padding: 1rem 2.5rem; font-weight: 600;
+      cursor: pointer; display: block; box-shadow: var(--shadow-glow); touch-action: manipulation;
+    }
+    .reset-btn:hover {
+      transform: translateY(-3px); box-shadow: 0 10px 35px rgba(240, 147, 251, 0.4);
+    }
+    .park-title {
+      font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; text-align: center; margin: 2rem 0;
+      background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+      background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .back-btn {
+      background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+      border-radius: 12px; color: var(--text-primary); font-size: 1rem; font-weight: 600; padding: 0.8rem 1.5rem;
+      cursor: pointer; margin-bottom: 2rem; touch-action: manipulation;
+    }
+    .back-btn:hover { transform: translateX(-5px); box-shadow: var(--shadow-soft);}
+    .section-header {
+      font-size: 1.8rem; font-weight: 800; margin: 3rem 0 2rem 0; color: var(--text-primary); text-align: center; position: relative;
+    }
+    .section-header::after {
+      content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+      width: 60px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--primary)); border-radius: 2px;
+    }
+    .land-header {
+      font-size: 1.3rem; font-weight: 700; margin: 2rem 0 1rem 0; color: var(--warning); padding-left: 1rem;
+      border-left: 4px solid var(--success); border-radius: 2px;
+    }
+    .rides-grid, .secrets-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;
+    }
+    .secret-card, .ride-card {
+      -webkit-backdrop-filter: blur(20px);
+      will-change: transform;
+      background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+      border-radius: 16px; padding: 1.5rem; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; touch-action: manipulation;
+    }
+    .secret-card::before, .ride-card::before {
+      content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+      background: linear-gradient(180deg, var(--accent), var(--primary)); transition: width 0.3s ease;
+    }
+    .secret-card:hover::before, .ride-card:hover::before { width: 8px; }
+    .secret-card:hover, .ride-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.4);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+    .secret-card.done, .ride-card.done {
+      background: rgba(78, 205, 196, 0.1); border-color: var(--success); opacity: 0.7;
+    }
+    .secret-card.done::before, .ride-card.done::before { background: var(--success);}
+    .card-content { display: flex; align-items: flex-start; gap: 1rem; }
+    .card-emoji { font-size: 2rem; flex-shrink: 0; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3)); }
+    .card-info { flex: 1; }
+    .card-name { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary); line-height: 1.4;}
+    .card-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4;}
+    .card-wait { font-size: 0.9rem; color: var(--warning); }
+    .done .card-name { text-decoration: line-through; color: var(--success);}
+    .tick {
+      position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; color: var(--success); display: none;
+      filter: drop-shadow(0 0 8px rgba(78, 205, 196, 0.5));
+    }
+    .done .tick { display: block; animation: tickAppear 0.5s ease-out;}
+    @keyframes tickAppear {
+      from { transform: scale(0) rotate(-180deg); opacity: 0;}
+      to { transform: scale(1) rotate(0); opacity: 1;}
+    }
+    .hunt-photo {
+      margin-top: 0.5rem;
+      max-width: 80px;
+      border-radius: 8px;
+      display: block;
+    }
+    .modal {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px);
+      display: flex; align-items: center; justify-content: center; z-index: 1000; animation: modalFadeIn 0.3s ease-out;
+    }
+    @keyframes modalFadeIn { from { opacity: 0;} to { opacity: 1;} }
+    .modal-content {
+      background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 2.5rem; max-width: 400px; text-align: center; box-shadow: var(--shadow-glow); animation: modalSlideUp 0.4s ease-out;
+    }
+    @keyframes modalSlideUp {
+      from { transform: translateY(50px); opacity: 0;}
+      to { transform: translateY(0); opacity: 1;}
+    }
+    .modal-emoji { font-size: 3rem; margin-bottom: 1rem; display: block;}
+    .modal-content p { font-size: 1rem; line-height: 1.6; margin-bottom: 2rem; color: var(--text-secondary);}
+    .modal-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; border: none; border-radius: 12px;
+      font-size: 1.1rem; font-weight: 600; padding: 1rem 2rem; cursor: pointer; box-shadow: var(--shadow-soft);
+    }
+    .modal-btn:hover {
+      transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    @media (max-width: 768px) {
+      .container { padding: 1rem;}
+      .main-menu-grid { grid-template-columns: 1fr; gap: 1rem;}
+      .rides-grid, .secrets-grid { grid-template-columns: 1fr; gap: 1rem;}
+      .menu-btn { min-height: 100px; padding: 1.5rem; font-size: 1.1rem;}
+      -webkit-backdrop-filter: blur(20px);
+      will-change: transform;
+      .menu-btn .emoji { font-size: 2rem;}
+    }
+    @keyframes pulse { 0%, 100% { transform: scale(1);} 50% { transform: scale(1.05);} }
+    .pulse-animation { animation: pulse 2s ease-in-out infinite;}
+    .shimmer {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 25%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.1) 75%);
+      background-size: 200% 100%; animation: shimmer 2s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0;}
+      100% { background-position: 200% 0;}
+    }
+    /* Day Planner styles */
+    .planner-flex { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .planner-list { flex: 1; min-width: 250px; }
+    .planner-item {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 0.5rem;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .planner-item .wait { font-size: 0.8rem; color: var(--warning); margin-left: auto; }
+    .planner-schedule { flex: 2; display: flex; gap: 1rem; flex-wrap: wrap; }
+    .schedule-column {
+      flex: 1;
+      min-width: 180px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 1rem;
+    }
+    .schedule-header { font-weight: 700; margin-bottom: 0.5rem; text-align: center; }
+    .dropzone { min-height: 150px; }
+    #quest-log li { margin-bottom: 0.5rem; }
+    /* Food Tracker styles */
+    .filter-controls { display: flex; gap: 1rem; margin: 1rem 0 2rem; }
+    .filter-controls input, .filter-controls select {
+      flex: 1;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      color: var(--text-primary);
+    }
+    .foods-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .food-card { -webkit-backdrop-filter: blur(20px); will-change: transform; background: var(--glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.5rem; cursor: pointer; position: relative; transition: all 0.3s ease; overflow: hidden; }
+    .food-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-soft); border-color: rgba(255, 255, 255, 0.3); }
+    .food-card.done { background: rgba(78, 205, 196, 0.1); border-color: var(--success); opacity: 0.7; }
+    .fav { position: absolute; top: 1rem; left: 1rem; font-size: 1.5rem; color: var(--warning); display: none; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
+    .favorite .fav { display: block; }
+    .land-header.badge-earned::after { content: '⭐'; margin-left: 0.25rem; }
+    #party-code { width: 100%; min-height: 100px; padding: 0.5rem; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-primary); }
+    .camera-btn {
+      -webkit-backdrop-filter: blur(20px);
+      will-change: transform;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 0.6rem 1.2rem;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+    .camera-btn:hover { transform: translateY(-2px); }
+    /* AR camera container */
+    #camera-ar-container { position: relative; width:100%; max-width:500px; margin:0 auto; }
+    #ar-cube { position: absolute; top:50%; left:50%; width:100px; height:100px;
+      transform-style: preserve-3d; transform: translate(-50%, -50%) rotateX(0) rotateY(0);
+      animation: spinCube 6s linear infinite; pointer-events:none; }
+    #ar-cube div { position:absolute; width:100px; height:100px; background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4); }
+    #ar-cube .front  { transform: translateZ(50px); }
+    #ar-cube .back   { transform: rotateY(180deg) translateZ(50px); }
+    #ar-cube .right  { transform: rotateY(90deg) translateZ(50px); }
+    #ar-cube .left   { transform: rotateY(-90deg) translateZ(50px); }
+    #ar-cube .top    { transform: rotateX(90deg) translateZ(50px); }
+    #ar-cube .bottom { transform: rotateX(-90deg) translateZ(50px); }
+    @keyframes spinCube {
+      from { transform: translate(-50%, -50%) rotateX(0) rotateY(0); }
+      to { transform: translate(-50%, -50%) rotateX(360deg) rotateY(360deg); }
+    }
+    #map-container { width:100%; height:60vh; max-height:400px; border-radius:12px; overflow:hidden; }
+    #links-modal .modal-content { max-width: 300px; padding: 1.5rem; text-align: left; }
+    #links-modal ul { list-style: none; padding: 0; margin: 0; }
+    #links-modal li { margin: 0.5rem 0; }
+    #links-modal a { color: var(--accent); text-decoration: none; }
+    #links-modal .close-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; color: var(--text-primary); font-size: 1.2rem; cursor: pointer; }
+    #map-container iframe { width:100%; height:100%; border:0; }
+  </style>
 </head>
 <body>
-<div id="welcome" class="modal" style="display:none">
-  <div class="modal-content">
-    <h2>Welcome to Enchanted Park Companion!</h2>
-    <p>Track rides, snacks and plan your magical days.</p>
-    <button id="welcome-close">Let's go</button>
+  <div class="bg-animated"></div>
+  <div class="particles" id="particles"></div>
+  
+  <main class="container">
+    <!-- Main Menu -->
+    <div id="main-menu" class="page active">
+      <h1>Dobbies Magical Park Guide</h1>
+      <div class="subtitle">Disney & Universal Cool Stuff – by Charlie</div>
+      <div class="author">Tap a park below to start your magical journey. Check off rides & secrets as you discover them. Reset anytime for a fresh adventure!</div>
+      
+      <div class="main-menu-grid">
+        <button class="menu-btn" onclick="openDisney()">
+          <span class="emoji">🏰</span>
+          <span>Disney Parks</span>
+        </button>
+        <button class="menu-btn" onclick="openUniversal()">
+          <span class="emoji">🧙‍♂️</span>
+          <span>Universal Parks</span>
+        </button>
+        <button class="menu-btn" onclick="openMap()">
+          <span class="emoji">🗺️</span>
+          <span>Park Map</span>
+        </button>
+        <button class="menu-btn" onclick="openParty()">
+          <span class="emoji">🎉</span>
+          <span>Party Mode</span>
+        </button>
+        <button class="menu-btn" onclick="openLinks()">
+          <span class="emoji">🔗</span>
+          <span>Helpful Links</span>
+        </button>
+        </button>
+        <button class="menu-btn" onclick="openCameraPage()">
+          <span class="emoji">📷</span>
+          <span>Camera</span>
+        </button>
+      </div>
+      
+      <button class="reset-btn" onclick="resetProgress()">🔄 Reset All Progress</button>
+    </div>
+    <!-- DISNEY MENU -->
+    <div id="disney-menu" class="page">
+      <button class="back-btn" onclick="goHome()">← Back</button>
+      <div class="park-title">🏰 Disney Parks</div>
+      <div class="main-menu-grid">
+        <button class="menu-btn" onclick="openPark('MK')">
+          <span class="emoji">🏰</span>
+          <span>Magic Kingdom</span>
+        </button>
+        <button class="menu-btn" onclick="openPark('EPCOT')">
+          <span class="emoji">🌐</span>
+          <span>EPCOT</span>
+        </button>
+        <button class="menu-btn" onclick="openPark('HS')">
+          <span class="emoji">🎬</span>
+          <span>Hollywood Studios</span>
+        </button>
+        <button class="menu-btn" onclick="openPark('AK')">
+          <span class="emoji">🦁</span>
+          <span>Animal Kingdom</span>
+        </button>
+        <button class="menu-btn" onclick="openPlanner()">
+          <span class="emoji">🗓️</span>
+          <span>Plan Your Day</span>
+        </button>
+        <button class="menu-btn" onclick="openFood('disney')">
+          <span class="emoji">🍔</span>
+          <span>Food & Snacks</span>
+        </button>
+        <button class="menu-btn" onclick="openPhotos()">
+          <span class="emoji">📸</span>
+          <span>Photo Hunts</span>
+        </button>
+      </div>
+    </div>
+    <!-- UNIVERSAL MENU -->
+    <div id="universal-menu" class="page">
+      <button class="back-btn" onclick="goHome()">← Back</button>
+      <div class="park-title">🧙‍♂️ Universal Parks</div>
+      <div class="main-menu-grid">
+        <button class="menu-btn" onclick="openPark('USF')">
+          <span class="emoji">🧙‍♂️</span>
+          <span>Universal Studios Florida</span>
+        </button>
+        <button class="menu-btn" onclick="openPark('IOA')">
+          <span class="emoji">🦖</span>
+          <span>Islands of Adventure</span>
+        </button>
+        <button class="menu-btn" onclick="openPark('EU')">
+          <span class="emoji">🌌</span>
+          <span>Epic Universe</span>
+        </button>
+        <button class="menu-btn" onclick="openFood('universal')">
+          <span class="emoji">🍔</span>
+          <span>Food & Snacks</span>
+        </button>
+      </div>
+    </div>
+    <!-- MAGIC KINGDOM -->
+    <div id="park-MK" class="page">
+      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <div class="park-title">🏰 Magic Kingdom</div>
+      <div class="section-header">Must-Do Rides</div>
+      <div class="land-header">Fantasyland</div>
+      <div class="rides-grid" id="MK-rides-fantasy"></div>
+      <div class="land-header">Frontierland</div>
+      <div class="rides-grid" id="MK-rides-frontier"></div>
+      <div class="land-header">Adventureland</div>
+      <div class="rides-grid" id="MK-rides-adventure"></div>
+      <div class="land-header">Liberty Square</div>
+      <div class="rides-grid" id="MK-rides-liberty"></div>
+      <div class="land-header">Tomorrowland</div>
+      <div class="rides-grid" id="MK-rides-tomorrow"></div>
+      <div class="section-header">Cool Hidden Stuff</div>
+      <div class="secrets-grid" id="MK-secrets"></div>
+    </div>
+    <!-- HOLLYWOOD STUDIOS -->
+    <div id="park-HS" class="page">
+      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <div class="park-title">🎬 Hollywood Studios</div>
+      <div class="section-header">Must-Do Rides</div>
+      <div class="land-header">Star Wars: Galaxy's Edge</div>
+      <div class="rides-grid" id="HS-rides-sw"></div>
+      <div class="land-header">Toy Story Land</div>
+      <div class="rides-grid" id="HS-rides-toy"></div>
+      <div class="land-header">Sunset Boulevard</div>
+      <div class="rides-grid" id="HS-rides-sunset"></div>
+      <div class="section-header">Cool Hidden Stuff</div>
+      <div class="secrets-grid" id="HS-secrets"></div>
+    </div>
+    <!-- ANIMAL KINGDOM -->
+    <div id="park-AK" class="page">
+      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <div class="park-title">🦁 Animal Kingdom</div>
+      <div class="section-header">Must-Do Rides</div>
+      <div class="land-header">Pandora</div>
+      <div class="rides-grid" id="AK-rides-pandora"></div>
+      <div class="land-header">Africa</div>
+      <div class="rides-grid" id="AK-rides-africa"></div>
+      <div class="land-header">Asia</div>
+      <div class="rides-grid" id="AK-rides-asia"></div>
+      <div class="land-header">DinoLand U.S.A.</div>
+      <div class="rides-grid" id="AK-rides-dino"></div>
+      <div class="section-header">Cool Hidden Stuff</div>
+      <div class="secrets-grid" id="AK-secrets"></div>
+    </div>
+    <!-- EPCOT -->
+    <div id="park-EPCOT" class="page">
+      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <div class="park-title">🌐 EPCOT</div>
+      <div class="section-header">Must-Do Rides</div>
+      <div class="land-header">World Discovery</div>
+      <div class="rides-grid" id="EPCOT-rides-discovery"></div>
+      <div class="land-header">World Celebration/Test Track</div>
+      <div class="rides-grid" id="EPCOT-rides-test"></div>
+      <div class="section-header">Cool Hidden Stuff</div>
+      <div class="secrets-grid" id="EPCOT-secrets"></div>
+    </div>
+    <!-- UNIVERSAL STUDIOS FLORIDA -->
+    <div id="park-USF" class="page">
+      <button class="back-btn" onclick="openUniversal()">← Back</button>
+      <div class="park-title">🧙‍♂️ Universal Studios Florida</div>
+      <div class="section-header">Must-Do Rides</div>
+      <div class="land-header">Diagon Alley</div>
+      <div class="rides-grid" id="USF-rides-diagon"></div>
+      <div class="land-header">Park Connector</div>
+      <div class="rides-grid" id="USF-rides-hogwarts"></div>
+      <div class="section-header">Cool Hidden Stuff</div>
+      <div class="secrets-grid" id="USF-secrets"></div>
+    </div>
+    <!-- ISLANDS OF ADVENTURE -->
+    <div id="park-IOA" class="page">
+      <button class="back-btn" onclick="openUniversal()">← Back</button>
+      <div class="park-title">🦖 Islands of Adventure</div>
+      <div class="section-header">Must-Do Rides</div>
+      <div class="land-header">Jurassic Park</div>
+      <div class="rides-grid" id="IOA-rides-jurassic"></div>
+      <div class="land-header">Hogsmeade</div>
+      <div class="rides-grid" id="IOA-rides-hogsmeade"></div>
+      <div class="section-header">Cool Hidden Stuff</div>
+      <div class="secrets-grid" id="IOA-secrets"></div>
+    </div>
+    <!-- EPIC UNIVERSE -->
+    <div id="park-EU" class="page">
+      <button class="back-btn" onclick="openUniversal()">← Back</button>
+      <div class="park-title">🌌 Epic Universe</div>
+      <div class="section-header">Must-Do Rides</div>
+      <div class="land-header">Celestial Park</div>
+      <div class="rides-grid" id="EU-rides-celestial"></div>
+      <div class="land-header">Ministry of Magic</div>
+      <div class="rides-grid" id="EU-rides-ministry"></div>
+      <div class="land-header">Super Nintendo World</div>
+      <div class="rides-grid" id="EU-rides-snw"></div>
+      <div class="land-header">Isle of Berk</div>
+      <div class="rides-grid" id="EU-rides-berk"></div>
+      <div class="section-header">Cool Hidden Stuff</div>
+      <div class="secrets-grid" id="EU-secrets"></div>
+    </div>
+    <!-- DAY PLANNER -->
+    <div id="planner-page" class="page">
+      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <div class="park-title">🗓️ Plan Your Day</div>
+      <div class="planner-flex">
+        <div class="planner-list" id="planner-list"></div>
+        <div class="planner-schedule">
+          <div class="schedule-column">
+            <div class="schedule-header">Morning</div>
+            <div class="dropzone" id="slot-morning"></div>
+          </div>
+          <div class="schedule-column">
+            <div class="schedule-header">Afternoon</div>
+            <div class="dropzone" id="slot-afternoon"></div>
+          </div>
+          <div class="schedule-column">
+            <div class="schedule-header">Evening</div>
+            <div class="dropzone" id="slot-evening"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section-header">Weather Tips</div>
+      <div id="live-weather" class="subtitle"></div>
+      <select id="weather-select">
+        <option value="sunny">Sunny</option>
+        <option value="rainy">Rainy</option>
+      </select>
+      <ul id="weather-tips"></ul>
+    </div>
+    <!-- FOOD TRACKER -->
+    <div id="food-page" class="page">
+      <button class="back-btn" id="food-back-btn" onclick="openDisney()">← Back</button>
+      <div class="park-title">🍔 Food & Snacks</div>
+      <div class="filter-controls">
+        <input type="text" id="food-search" placeholder="Search snacks...">
+        <select id="food-filter">
+          <option value="">All</option>
+          <option value="sweet">Sweet</option>
+          <option value="savory">Savory</option>
+          <option value="drink">Drink</option>
+        </select>
+      </div>
+      <div id="food-sections"></div>
+    </div>
+    <!-- PHOTO HUNTS -->
+    <div id="photo-page" class="page">
+      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <div class="park-title">📸 Photo Hunts</div>
+      <button class="camera-btn" onclick="launchCamera()">📷 Take Photo</button>
+      <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
+      <div class="secrets-grid" id="photo-list"></div>
+    </div>
+    <!-- PARK MAP -->
+  <div id="map-page" class="page">
+    <button class="back-btn" onclick="goHome()">← Back to Parks</button>
+    <div class="park-title">🗺️ Park Map</div>
+    <p>Grant location access to see where you are in the park.</p>
+    <div id="map-container"><iframe id="map-frame" allowfullscreen title="Park map"></iframe></div>
   </div>
-</div>
-<header>
-  <h1>Enchanted Park Companion</h1>
-</header>
-<main>
-<section id="parks"></section>
-<h2>Food Tracker</h2>
-<div class="filters">
-  <input type="text" id="food-search" placeholder="Search food">
-  <select id="food-filter">
-    <option value="all">All</option>
-    <option value="sweet">Sweet</option>
-    <option value="savory">Savory</option>
-    <option value="drink">Drink</option>
-  </select>
-</div>
-<ul id="food-list" class="food"></ul>
-<h2>Day Planner</h2>
-<div class="planner">
-  <div id="morning" class="dropzone">Morning</div>
-  <div id="afternoon" class="dropzone">Afternoon</div>
-  <div id="evening" class="dropzone">Evening</div>
-</div>
-<h2>Weather Tips</h2>
-<p id="weather">Loading...</p>
-<h2>Party Mode</h2>
-<button id="share">Share Progress</button>
-<button id="import">Import Progress</button>
-<input type="text" id="import-box" placeholder="Paste code here">
-<div id="qrcode"></div>
-</main>
-<footer>&copy; 2025 Enchanted Park Companion</footer>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-<script>
-const parks={
-  'Magic Kingdom':{
-    rides:[
-      {name:'🚂 Seven Dwarfs Mine Train',desc:'Family coaster'},
-      {name:"🌊 Tiana's Bayou Adventure",desc:'A watery journey'},
-      {name:"👶 It’s a Small World",desc:'Classic boat ride'},
-      {name:'💥 Big Thunder Mountain Railroad',desc:'Wildest ride in the wilderness'},
-      {name:'🛶 Jungle Cruise',desc:'Cheesy jokes abound'},
-      {name:'🏴‍☠️ Pirates of the Caribbean',desc:'Yo ho!'},
-      {name:'👻 Haunted Mansion',desc:'999 happy haunts'},
-      {name:'🏍️ TRON Lightcycle Run',desc:'High speed thrills'}
-    ],
-    secrets:['Haunted Mansion ring','Pixie Dust at Sir Mickey’s','Tangled lanterns','Camel spitting','Liberty Square sewage','Cinderella’s Wishing Well','Phone booths','Hidden Mickeys'],
-    foods:[{emoji:'🍍',name:'Dole Whip',type:'sweet'},{emoji:'🥟',name:'Cheeseburger Spring Rolls',type:'savory'},{emoji:'🍎',name:"LeFou’s Brew",type:'drink'}]
-  },
-  'EPCOT':{
-    rides:[{name:'🌌 Guardians of the Galaxy: Cosmic Rewind',desc:'Spin coaster'},{name:'🏎️ Test Track',desc:'Design a car'}],
-    secrets:['Club Cool Beverly','Bubblegum Wall','Germany train garden Mickey','Morocco alleys','Voices of Liberty','Imagination Pavilion secrets'],
-    foods:[{emoji:'🍞',name:'School Bread',type:'sweet'},{emoji:'🍦',name:'Macaron Ice Cream',type:'sweet'},{emoji:'🥃',name:'Beverly',type:'drink'}]
-  },
-  'Hollywood Studios':{
-    rides:[{name:'🚀 Rise of the Resistance',desc:'Epic battle'},{name:'🛸 Smugglers Run',desc:'Fly the Falcon'},{name:'🐶 Slinky Dog Dash',desc:'Family coaster'},{name:'🏨 Tower of Terror',desc:'Falling elevator'}],
-    secrets:['Singing in the Rain umbrella','Guest names at Tower','Walt\'s office window','Droids around Galaxy’s Edge'],
-    foods:[{emoji:'🌯',name:'Ronto Wrap',type:'savory'},{emoji:'🥛',name:'Blue/Green Milk',type:'drink'},{emoji:'🍪',name:'Jack Jack Cookie',type:'sweet'}]
-  },
-  'Animal Kingdom':{
-    rides:[{name:'🦋 Flight of Passage',desc:'Ride a banshee'},{name:'🌊 Na\'vi River Journey',desc:'Glow boat'},{name:'🦁 Kilimanjaro Safaris',desc:'Real animals'},{name:'🏔️ Expedition Everest',desc:'Yeti coaster'},{name:'💦 Kali River Rapids',desc:'Raft ride'},{name:'🦖 DINOSAUR',desc:'Time travel'}],
-    secrets:['DiVine living plant','Wilderness Explorer game','Simba pretzel','Kangaroos by Tree of Life','Yeti shrine'],
-    foods:[{emoji:'🧃',name:'Night Blossom Slush',type:'drink'},{emoji:'🍟',name:"Mr. Kamal’s Fries",type:'savory'},{emoji:'🦁',name:'Simba Pretzel',type:'savory'}]
-  },
-  'Universal Studios Florida':{
-    rides:[{name:'🪄 Escape from Gringotts',desc:'Bank adventure'},{name:'🚂 Hogwarts Express',desc:'Park connector'}],
-    secrets:['Kreacher in the window','Red phone booth','Knight Bus','Jaws easter eggs','Dragon fire'],
-    foods:[{emoji:'🍺',name:'Butterbeer',type:'drink'},{emoji:'🎃',name:'Pumpkin Juice',type:'drink'},{emoji:'🍩',name:'Lard Lad Donut',type:'sweet'}]
-  },
-  'Islands of Adventure':{
-    rides:[{name:'🎢 VelociCoaster',desc:'Thrilling coaster'},{name:'🦕 Jurassic River Adventure',desc:'Get soaked'},{name:"🏍️ Hagrid's Motorbike Adventure",desc:'Story coaster'},{name:'🧙‍♂️ Forbidden Journey',desc:'Castle ride'}],
-    secrets:['Raptor meet-and-greet','Moaning Myrtle in bathrooms','Secret room at MIB'],
-    foods:[{emoji:'🍧',name:'Frozen Butterbeer',type:'drink'},{emoji:'🍗',name:'Giant Turkey Leg',type:'savory'}]
-  },
-  'Epic Universe':{
-    rides:[{name:'🌠 Starfall Racers',desc:'Dual launch'},{name:'🏛️ Ministry of Magic ride',desc:'Dark ride'},{name:'🍄 Bowser’s Challenge',desc:'Kart racing'},{name:'⛏️ Minecart Madness',desc:'DK coaster'},{name:'🪁 Hiccup’s Wing Gliders',desc:'How to Train Your Dragon'},{name:'🐉 Dragon Racer Rally',desc:'Family coaster'}],
-    secrets:['Toothless in Isle of Berk','Secret Knockturn Alley door','Frankenstein’s area'],
-    foods:[{emoji:'🍄',name:'Toadstool Café',type:'savory'},{emoji:'🐲',name:'Dragon Fruit Sorbet',type:'sweet'}]
-  }
-};
+  <!-- CAMERA PAGE -->
+  <div id="camera-page" class="page">
+    <button class="back-btn" onclick="goHome()">← Back to Parks</button>
+    <div class="park-title">📷 Camera</div>
+    <div id="camera-ar-container">
+      <video id="ar-video" autoplay playsinline style="width:100%;border-radius:12px;"></video>
+      <!-- Add your own AR model file (cube.usdz) here -->
+      <a id="ar-link" rel="ar" href="cube.usdz"></a>
+      <button id="enter-ar-btn" class="camera-btn" style="display:none;margin-top:0.5rem;" onclick="openARQuickLook()">🕶️ View in AR</button>
+      <div id="ar-cube">
+        <div class="front"></div>
+        <div class="back"></div>
+        <div class="right"></div>
+        <div class="left"></div>
+        <div class="top"></div>
+        <div class="bottom"></div>
+      </div>
+    </div>
+  </div>
+  <!-- PARTY MODE -->
+  <div id="party-page" class="page">
+      <button class="back-btn" onclick="goHome()">← Back to Parks</button>
+      <div class="park-title">🎉 Party Mode</div>
+      <p>Share your progress with friends. Use the link or scan the QR code.</p>
+      <textarea id="party-code"></textarea>
+      <div id="qr-code" style="margin-top:1rem;"></div>
+      <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
+        <button class="modal-btn" onclick="exportProgress()">Generate Link</button>
+        <button class="modal-btn" onclick="importProgress()">Load Progress</button>
+        <button class="modal-btn" onclick="startQRScan()">Scan Code</button>
+      </div>
+      <video id="qr-video" style="display:none;width:100%;max-width:300px;margin-top:1rem;" playsinline></video>
+      <canvas id="qr-canvas" style="display:none;"></canvas>
 
-let progress=JSON.parse(localStorage.getItem('progress')||'{}');
+    </div>
+  <!-- QUEST SPINNER -->
+  <div id="quest-page" class="page">
+      <button class="back-btn" onclick="goHome()">← Back to Parks</button>
+      <div class="park-title">🔁 Family Quest Spinner</div>
+      <button class="modal-btn" onclick="spinQuest()">Tap to Spin</button>
+      <div id="quest-result" style="margin-top:1.5rem;font-size:1.2rem;text-align:center;"></div>
+      <button class="modal-btn" id="quest-complete-btn" style="display:none;margin-top:1rem;" onclick="completeQuest()">Complete Quest</button>
+      <div class="section-header">Quest Journal</div>
+      <ul id="quest-log" style="list-style:none;padding:0;"></ul>
+  </div>
+  </main>
+  <!-- Welcome Modal -->
+  <div id="welcome-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="modal-emoji">🎉✨</span>
+      <p id="welcome-message">Welcome to your magical park adventure guide!<br><br>
+      Pick a park, check off rides & cool secrets, and make the most of your Disney & Universal trip.<br><br>
+      <strong style="color: var(--accent);">Pro Tip:</strong> Add this to your home screen for the best experience!</p>
+      <button class="modal-btn" onclick="closeModal()">Let's Begin the Magic!</button>
+    </div>
+  </div>
+  <!-- Badge Modal -->
+  <div id="badge-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="modal-emoji">🏆</span>
+      <p id="badge-text"></p>
+      <button class="modal-btn" onclick="closeBadge()">Awesome!</button>
+    </div>
+  </div>
+  <div id="links-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeLinks()">✖️</button>
+      <ul>
+        <li><a href="https://disneyworld.disney.go.com/plan/my-disney-experience/mobile-apps/" target="_blank" rel="noopener">My Disney Experience App</a></li>
+        <li><a href="https://disneyworld.disney.go.com/genie/" target="_blank" rel="noopener">Disney Genie+ Info</a></li>
+        <li><a href="https://disneyworld.disney.go.com/maps/" target="_blank" rel="noopener">Official Disney World Interactive Map</a></li>
+        <li><a href="https://touringplans.com/walt-disney-world/crowd-calendar" target="_blank" rel="noopener">TouringPlans Crowd Calendar</a></li>
+        <li><a href="https://www.universalorlando.com/web/en/us/plan-your-visit/mobile-app" target="_blank" rel="noopener">Universal Orlando App</a></li>
+        <li><a href="https://www.universalorlando.com/web/en/us/plan-your-visit/resort-maps" target="_blank" rel="noopener">Universal Orlando Resort Maps</a></li>
+        <li><a href="https://allears.net/" target="_blank" rel="noopener">AllEars.net Disney Tips</a></li>
+        <li><a href="https://www.mousesavers.com/" target="_blank" rel="noopener">MouseSavers</a></li>
+      </ul>
+    </div>
+  </div>
+  <script>
+    // Create floating particles
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = window.innerWidth > 768 ? 50 : 25;
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.top = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 6 + 's';
+        particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        particlesContainer.appendChild(particle);
+      }
+    }
+    createParticles();
 
-function save(){localStorage.setItem('progress',JSON.stringify(progress));}
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => {
+        if (p.id !== id) {
+          p.classList.remove('active');
+        }
+      });
+      const page = document.getElementById(id);
+      if (page) {
+        page.classList.add('active');
+      }
+      const html = document.documentElement;
+      const prevBehavior = html.style.scrollBehavior;
+      html.style.scrollBehavior = 'auto';
+      window.scrollTo(0, 0);
+      html.style.scrollBehavior = prevBehavior;
+    }
 
-function buildParks(){
-  const container=document.getElementById('parks');
-  for(const [name,info] of Object.entries(parks)){
-    const sec=document.createElement('section');
-    sec.className='park';
-    sec.dataset.park=name;
-    const h=document.createElement('h3');h.textContent=name;sec.appendChild(h);
-    const rideHeader=document.createElement('h4');rideHeader.textContent='Must-Do Rides';sec.appendChild(rideHeader);
-    const ul=document.createElement('ul');ul.className='rides';
-    info.rides.forEach((r,i)=>{
-      const li=document.createElement('li');li.textContent=`${r.name} - ${r.desc}`;li.draggable=true;
-      if(progress[name]&&progress[name].rides&&progress[name].rides[i])li.classList.add('completed');
-      li.addEventListener('click',()=>{li.classList.toggle('completed');if(!progress[name])progress[name]={rides:[]};progress[name].rides[i]=li.classList.contains('completed');save();checkBadges(name,info.rides.length);});
-      li.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',li.textContent);});
-      ul.appendChild(li);
+    // Navigation functions
+    function openPark(park) {
+      showPage('park-' + park);
+    }
+    function openPlanner() {
+      showPage('planner-page');
+      fetchWaitTimes();
+      initWeatherTips();
+      fetchWeather();
+    }
+    let foodMode = 'disney';
+    function openFood(mode = 'disney') {
+      showPage('food-page');
+      foodMode = mode;
+      const backBtn = document.getElementById('food-back-btn');
+      if (backBtn) backBtn.onclick = mode === 'disney' ? openDisney : openUniversal;
+      initFood();
+    }
+    function openPhotos() {
+      showPage('photo-page');
+      renderHunts();
+    }
+    function openDisney() {
+      showPage('disney-menu');
+    }
+    function openUniversal() {
+      showPage('universal-menu');
+    }
+    function openMap() {
+      showPage('map-page');
+      updateMapLocation();
+    }
+    function updateMapLocation() {
+      const frame = document.getElementById('map-frame');
+      if (!frame) return;
+      if (!navigator.geolocation) {
+        frame.src = 'https://www.openstreetmap.org';
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const bbox = `${lon-0.005},${lat-0.005},${lon+0.005},${lat+0.005}`;
+        frame.src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
+      }, () => {
+        frame.src = 'https://www.openstreetmap.org';
+      });
+    }
+    function launchCamera() {
+      if (!currentHuntKey) {
+        alert('Tap a hunt below first to attach your photo.');
+        return;
+      }
+      const input = document.getElementById('camera-input');
+      if (input) input.click();
+    }
+    let qrStream;
+    function startQRScan() {
+      const video = document.getElementById('qr-video');
+      const canvas = document.getElementById('qr-canvas');
+      if (!video || !canvas || !navigator.mediaDevices) return;
+      const ctx = canvas.getContext('2d');
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+        qrStream = stream;
+        video.srcObject = stream;
+        video.style.display = 'block';
+        video.play();
+        requestAnimationFrame(tick);
+      }).catch(() => alert('Camera access denied'));
+      function tick() {
+        if (!qrStream) return;
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const result = window.jsQR && jsQR(imageData.data, canvas.width, canvas.height);
+          if (result) {
+            stopQRScan();
+            const text = result.data.trim();
+            document.getElementById('party-code').value = text;
+            if (/^https?:\/\//i.test(text)) {
+              window.location.href = text;
+            } else {
+              importProgress();
+            }
+            return;
+          }
+        }
+        if (qrStream) requestAnimationFrame(tick);
+      }
+    }
+    function stopQRScan() {
+      const video = document.getElementById('qr-video');
+      if (video) {
+        video.pause();
+        video.srcObject = null;
+        video.style.display = 'none';
+      }
+      if (qrStream) {
+        qrStream.getTracks().forEach(t => t.stop());
+        qrStream = null;
+      }
+    }
+    let arStream;
+    function startARCamera() {
+      const video = document.getElementById('ar-video');
+      if (!video || !navigator.mediaDevices) return;
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(stream => {
+        arStream = stream;
+        video.srcObject = stream;
+        video.play();
+      }).catch(() => alert('Camera access denied'));
+    }
+    function stopARCamera() {
+      const video = document.getElementById('ar-video');
+      if (video) {
+        video.pause();
+        video.srcObject = null;
+      }
+      if (arStream) {
+        arStream.getTracks().forEach(t => t.stop());
+        arStream = null;
+      }
+    }
+    function openParty() {
+      stopQRScan();
+      showPage('party-page');
+      exportProgress();
+    }
+    function isiOS() {
+      return /iphone|ipad|ipod/i.test(navigator.userAgent);
+    }
+    function openARQuickLook() {
+      const link = document.getElementById('ar-link');
+      if (link) link.click();
+    }
+    function openCameraPage() {
+      stopARCamera();
+      showPage('camera-page');
+      const btn = document.getElementById('enter-ar-btn');
+      const cube = document.getElementById('ar-cube');
+      const video = document.getElementById('ar-video');
+      if (isiOS()) {
+        if (btn) btn.style.display = 'inline-flex';
+        if (cube) cube.style.display = 'none';
+        if (video) video.style.display = 'none';
+      } else {
+        if (btn) btn.style.display = 'none';
+        if (cube) cube.style.display = 'block';
+        if (video) video.style.display = 'block';
+        startARCamera();
+      }
+    }
+    function openQuest() {
+      showPage('quest-page');
+      renderQuestLog();
+      document.getElementById('quest-result').textContent = '';
+      document.getElementById('quest-complete-btn').style.display = 'none';
+      currentQuest = null;
+    }
+    function goHome() {
+      stopQRScan();
+      stopARCamera();
+      showPage('main-menu');
+    }
+    // Modal functions
+    function showModal() {
+      document.getElementById('welcome-modal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('welcome-modal').style.display = 'none';
+      localStorage.setItem("seenCharlieWelcome", "1");
+    }
+    // Show welcome modal for first-time visitors
+    if (!localStorage.getItem("seenCharlieWelcome")) {
+      setTimeout(showModal, 800);
+    }
+    function openLinks() {
+      document.getElementById("links-modal").style.display = "flex";
+    }
+    function closeLinks() {
+      document.getElementById("links-modal").style.display = "none";
+    }
+
+
+    function applyLinkProgress() {
+      const params = new URLSearchParams(location.hash.substring(1) || location.search.substring(1));
+      const code = params.get('share');
+      if (!code) return;
+      try {
+        const data = JSON.parse(atob(code));
+        localStorage.setItem('hiddenParkFullScreenCharlieRides', JSON.stringify(data.rides || {}));
+        localStorage.setItem('hiddenParkFoodStatus', JSON.stringify(data.foodDone || {}));
+        localStorage.setItem('hiddenParkFoodFav', JSON.stringify(data.foodFav || {}));
+        localStorage.setItem('parkAchievements', JSON.stringify(data.achievements || {}));
+        localStorage.setItem('photoHunts', JSON.stringify(data.hunts || {}));
+      } catch (e) {
+        console.error('Invalid share data');
+      }
+    }
+    applyLinkProgress();
+    if (isiOS() && !window.navigator.standalone) {
+      const msg = document.getElementById("welcome-message");
+      if (msg) msg.innerHTML += "<br><br>Tap the share icon and choose <strong>Add to Home Screen</strong>.";
+    }
+    // DATA:
+    const secrets = {
+      MK: [
+        {emoji:"💍", name:"Find the Haunted Mansion ring in the pavement", desc:"Liberty Square"},
+        {emoji:"✨", name:"Get 'pixie dusted' at Sir Mickey's", desc:"Behind the castle"},
+        {emoji:"🐫", name:"Get sprayed by the camel at Aladdin's Magic Carpets", desc:"Adventureland"},
+        {emoji:"🕯️", name:"Pose for lantern photos at Tangled bathrooms & look for hidden Pascals", desc:"Near Rapunzel tower"},
+        {emoji:"💦", name:"Notice the brown 'sewage line' in Liberty Square", desc:"A historical detail!"},
+        {emoji:"🔔", name:"Listen in Tomorrowland Power & Light phone booths", desc:"Hear a secret call"},
+        {emoji:"🏰", name:"Make a wish at Cinderella's Wishing Well", desc:"Right of the castle"},
+        {emoji:"📞", name:"Pick up the phone at City Hall for a surprise", desc:"Main Street"},
+        {emoji:"📸", name:"Ask for a Photopass 'magic shot'", desc:"Try waving or asking!"},
+        {emoji:"🌈", name:"Watch the 'Kiss Goodnight' at closing", desc:"Castle lights farewell"},
+        {emoji:"🎹", name:"Listen to live piano at Casey’s Corner", desc:"Ragtime on Main Street"},
+        {emoji:"🗝️", name:"Ask about the 'Keys to the Kingdom' tour", desc:"Only for superfans"},
+        {emoji:"🦴", name:"Look for the talking trash can (Push!)", desc:"Tomorrowland (sometimes appears)"},
+        {emoji:"🐶", name:"Spot the 'Smiling Dog' in Pirates of the Caribbean", desc:"The one with keys in his mouth!"},
+        {emoji:"🦎", name:"Count the hidden Pascals near the Tangled restrooms", desc:"See how many you can spot"},
+        {emoji:"🏞️", name:"Snap a moody photo in the Tangled restrooms at dusk", desc:"Lanterns glow beautifully"},
+        {emoji:"🌉", name:"Watch Happily Ever After fireworks from the Tomorrowland bridge", desc:"Less crowded, great view"},
+        {emoji:"🚢", name:"Catch the Liberty Belle Riverboat at sunset", desc:"Unique castle perspectives"},
+        {emoji:"🗝️", name:"Spot hidden Mickeys around the park", desc:"Challenge: find at least three"},
+        {emoji:"🚇", name:"Ride the PeopleMover at night", desc:"Neon views of Tomorrowland"},
+        {emoji:"🎡", name:"Ride Big Thunder Mountain during fireworks", desc:"Epic nighttime views"},
+        {emoji:"🎢", name:"Sit front row on Space Mountain", desc:"Most intense ride experience"},
+        {emoji:"🦇", name:"Selfie with the bat details in Haunted Mansion queue", desc:"Spooky queue decor"},
+        {emoji:"🚂", name:"Ride the train around the park", desc:"Relax and people-watch"},
+      ],
+      EPCOT: [
+        {emoji:"🥤", name:"Try every soda at Club Cool (even Beverly)", desc:"Near Creations Shop"},
+        {emoji:"🎨", name:"Look for the Bubblegum & Blueberry Walls", desc:"Colorful photo spots outside Spaceship Earth"},
+        {emoji:"🚃", name:"Find a hidden Mickey in Germany's train garden", desc:"World Showcase"},
+        {emoji:"⛲", name:"Notice the 'burning Rome' scent in Spaceship Earth", desc:"During the fire scene"},
+        {emoji:"🌸", name:"Explore Morocco’s quiet back alleys", desc:"So many details!"},
+        {emoji:"🎤", name:"Enjoy Voices of Liberty a cappella", desc:"American Adventure rotunda"},
+        {emoji:"🌌", name:"Watch the projections on Spaceship Earth after dark", desc:"Beacons of Magic show"},
+        {emoji:"🍧", name:"Eat School Bread in Norway", desc:"Bakery in Norway pavilion"},
+        {emoji:"🍦", name:"Try a macaron ice cream sandwich", desc:"France pavilion"},
+        {emoji:"🔎", name:"Spot a hidden Mickey in Living with the Land", desc:"Greenhouse scenes"},
+        {emoji:"🥚", name:"Try a festival scavenger hunt", desc:"Like Remy’s or Figment’s!"},
+        {emoji:"🗼", name:"Notice the bird-free Eiffel Tower", desc:"Painted with special paint"},
+        {emoji:"🎩", name:"Find Dreamfinder references at Imagination Pavilion", desc:"Classic EPCOT fans only!"},
+        {emoji:"🚅", name:"Design a wild car at Test Track to beat your friends", desc:"Compare scores"},
+        {emoji:"🏯", name:"Take a forced-perspective photo with Spaceship Earth \"in your hand\"", desc:"Line up from afar"},
+        {emoji:"🎠", name:"Ride Living with the Land at sunset or in rain", desc:"Relaxing views"},
+        {emoji:"🚄", name:"Ride the Skyliner for sunset photos", desc:"Great aerial angles"},
+        {emoji:"🎼", name:"Listen for hidden musical cues at each pavilion entrance", desc:"Subtle details"}
+      ],
+      HS: [
+        {emoji:"☂️", name:"Stand under the Singing in the Rain umbrella", desc:"Pull the handle near Echo Lake"},
+        {emoji:"🎸", name:"See the Tower of Terror neon at night", desc:"Perfect spooky photo"},
+        {emoji:"🐦", name:"See dino Gertie by Echo Lake", desc:"Classic Disney dinosaur!"},
+        {emoji:"🎥", name:"See droids in Galaxy’s Edge", desc:"Check near shops and doors"},
+        {emoji:"🌟", name:"Watch Fantasmic! or Indiana Jones", desc:"Epic live shows"},
+        {emoji:"🚂", name:"See Walt’s model train car in One Man’s Dream", desc:"History lovers only"},
+        {emoji:"🍿", name:"Try all flavors at Kat Saka’s Kettle", desc:"Colorful Star Wars popcorn"},
+        {emoji:"💼", name:"Find Walt’s office window", desc:"Look for his name in the windows"},
+        {emoji:"🥓", name:"Eat Totchos at Woody’s Lunch Box", desc:"Potato barrel + chili cheese"},
+        {emoji:"🍪", name:"Get a Jack-Jack’s Num Num Cookie", desc:"Super gooey, Pixar Place"},
+        {emoji:"🧳", name:"Look for clever fake hotel guest names in the Tower of Terror guest book", desc:"Check the lobby desk"},
+      ],
+      AK: [
+        {emoji:"🦖", name:"Take a selfie with Dino Sue", desc:"Near DINOSAUR entrance"},
+        {emoji:"🌱", name:"See DiVine, the living plant", desc:"Path from Africa to Asia"},
+        {emoji:"🎭", name:"Enjoy Festival of the Lion King", desc:"Fantastic live show"},
+        {emoji:"🦍", name:"Walk the Gorilla Falls or Maharajah Jungle Trek", desc:"See gorillas and tigers"},
+        {emoji:"🔍", name:"Try the Wilderness Explorer game", desc:"Collect badges all over"},
+        {emoji:"💦", name:"Drink a Night Blossom slush in Pandora", desc:"Tastes as wild as it looks!"},
+        {emoji:"🔥", name:"See Tree of Life Awakenings at night", desc:"Projections on the tree"},
+        {emoji:"🍟", name:"Eat Mr. Kamal’s seasoned fries", desc:"Asia, legendary snack"},
+        {emoji:"🦘", name:"Watch kangaroos by Tree of Life", desc:"Morning is best"},
+        {emoji:"⛰️", name:"Spot the Yeti Shrine at Everest", desc:"Near the ride entrance"},
+        {emoji:"🦕", name:"Listen for dinosaur sounds outside DINOSAUR", desc:"Hidden speakers!"},
+        {emoji:"🦉", name:"Explore the hidden trails behind the Tree of Life", desc:"Quiet photo spots with no crowds"},
+      ],
+      USF: [
+        {emoji:"🐍", name:"See Kreacher peek from 12 Grimmauld Place", desc:"Knock, watch the window"},
+        {emoji:"📞", name:"Dial 'MAGIC' at the red phone booth", desc:"Dial 62442 for a secret!"},
+        {emoji:"🐉", name:"Watch the dragon breathe fire over Gringotts", desc:"Every 10-15 minutes"},
+        {emoji:"🧙", name:"Chat with the Knight Bus shrunken head", desc:"It talks!"},
+        {emoji:"🦑", name:"Spot the Jaws shark & movie tributes", desc:"San Francisco & Diagon Alley"},
+        {emoji:"🚀", name:"Use single rider for Escape from Gringotts", desc:"Beat the lines!"},
+        {emoji:"🎟️", name:"See E.T.'s passport Easter egg in the queue", desc:"A tribute to the movie"},
+        {emoji:"🥤", name:"Try Butterbeer as frozen, hot, or ice cream", desc:"Diagon Alley"},
+        {emoji:"🎮", name:"Try a secret wand spell", desc:"Ask for a hint!"},
+        {emoji:"👾", name:"Spot hidden Minions in the park", desc:"Look up in the gift shops!"}
+      ],
+      IOA: [
+        {emoji:"🦖", name:"Watch Blue the Raptor at Jurassic Park", desc:"Photo ops through the day"},
+        {emoji:"🐍", name:"Request the Men in Black Immigration Room tour", desc:"If you catch staff in a good mood!"},
+        {emoji:"🐲", name:"Try Butterbeer or pumpkin juice at Three Broomsticks", desc:"Or sticky toffee pudding!"},
+        {emoji:"👻", name:"Listen for Moaning Myrtle in Hogsmeade bathrooms", desc:"Harry Potter fans only!"},
+        {emoji:"🎢", name:"Ride front row on Hulk or VelociCoaster", desc:"Top thrill!"},
+        {emoji:"🦄", name:"See a house elf in a Hogsmeade shop window", desc:"Look up for moving elves!"},
+        {emoji:"🚪", name:"Try the secret knock in Knockturn Alley", desc:"Watch what happens!"},
+        {emoji:"🍈", name:"Ask about the Olive at Popeye ride", desc:"A quirky prop fact!"}
+      ],
+      EU: [
+        {emoji:"🌌", name:"Walk the gardens of Celestial Park", desc:"Relax and people-watch"},
+        {emoji:"🍄", name:"Ride Mario Kart: Bowser's Challenge", desc:"Super Nintendo World"},
+        {emoji:"🐉", name:"See Toothless in Isle of Berk", desc:"How to Train Your Dragon area"},
+        {emoji:"🎩", name:"Tour the Ministry of Magic", desc:"Brand new for Harry Potter fans"},
+        {emoji:"👻", name:"Check out Frankenstein’s Dark Universe", desc:"Classic monsters meet the future!"}
+      ]
+    };
+    const foods = {
+      MK: [
+        {emoji:"🍍", name:"Dole Whip swirl", desc:"Aloha Isle – enjoy on the Tiki Room patio", type:"sweet"},
+        {emoji:"🥐", name:"Cheshire Cat Tail", desc:"Cheshire Café (Fantasyland)", type:"sweet"},
+        {emoji:"🥨", name:"Mickey Pretzel", desc:"Snack Carts", type:"savory"},
+        {emoji:"🥟", name:"Cheeseburger Spring Rolls", desc:"Adventureland cart", type:"savory"},
+        {emoji:"🌭", name:"Corn Dog Nuggets", desc:"Casey’s Corner", type:"savory"},
+        {emoji:"🍎", name:"LeFou’s Brew", desc:"Gaston’s Tavern", type:"drink"}
+      ],
+      EPCOT: [
+        {emoji:"🍞", name:"School Bread", desc:"Kringla Bakeri Og Kafe (Norway)", type:"sweet"},
+        {emoji:"🍦", name:"Macaron Ice Cream Sandwich", desc:"France pavilion", type:"sweet"},
+        {emoji:"🍰", name:"Funnel Cake", desc:"America Pavilion", type:"sweet"},
+        {emoji:"🍿", name:"Caramel Popcorn", desc:"Karamell-Küche (Germany)", type:"sweet"},
+        {emoji:"🍹", name:"Margaritas", desc:"La Cava del Tequila (Mexico)", type:"drink"},
+        {emoji:"🥃", name:"Beverly", desc:"Club Cool", type:"drink"}
+      ],
+      HS: [
+        {emoji:"🌯", name:"Ronto Wrap", desc:"Ronto Roasters", type:"savory"},
+        {emoji:"🍪", name:"Jack Jack Num Num Cookie", desc:"Pixar Place Market - great to share", type:"sweet"},
+        {emoji:"🥔", name:"Totchos", desc:"Woody’s Lunch Box", type:"savory"},
+        {emoji:"🥛", name:"Blue/Green Milk", desc:"Milk Stand", type:"drink"},
+        {emoji:"🥕", name:"Carrot Cake Cookie", desc:"Trolley Car Café", type:"sweet"}
+      ],
+      AK: [
+        {emoji:"🧃", name:"Night Blossom Slush", desc:"Pongu Pongu", type:"drink"},
+        {emoji:"🍟", name:"Mr. Kamal’s Fries", desc:"Asia", type:"savory"},
+        {emoji:"🧀", name:"Pulled Pork Mac and Cheese", desc:"Flame Tree Barbecue", type:"savory"},
+        {emoji:"🌽", name:"Grilled Corn on the Cob", desc:"Harambe Market", type:"savory"},
+        {emoji:"🦁", name:"Simba Pretzel", desc:"Harambe Fruit Market", type:"savory"}
+      ],
+      USF: [
+        {emoji:"🍺", name:"Butterbeer", desc:"Diagon Alley", type:"drink"},
+        {emoji:"🎃", name:"Pumpkin Juice", desc:"The Leaky Cauldron", type:"drink"},
+        {emoji:"🟢", name:"Fishy Green Ale", desc:"The Hopping Pot", type:"drink"},
+        {emoji:"🍩", name:"Lard Lad Donut", desc:"Simpsons area", type:"sweet"},
+        {emoji:"🔥", name:"Moe’s Flaming Moe", desc:"Moe’s Tavern", type:"drink"}
+      ],
+      IOA: [
+        {emoji:"🍧", name:"Frozen Butterbeer", desc:"Three Broomsticks", type:"drink"},
+        {emoji:"🥟", name:"Pumpkin Pasties", desc:"Honeydukes", type:"sweet"},
+        {emoji:"🍗", name:"Giant Turkey Leg", desc:"Multiple Locations", type:"savory"},
+        {emoji:"🥖", name:"Churros", desc:"Snack Carts", type:"sweet"}
+      ],
+      EU: [
+        {emoji:"🍄", name:"Toadstool Café treats", desc:"Super Nintendo World", type:"sweet"},
+        {emoji:"🧙", name:"Wizarding World specialty drinks", desc:"Ministry of Magic", type:"drink"},
+        {emoji:"🐲", name:"Dragon Fruit Sorbet", desc:"Isle of Berk", type:"sweet"}
+      ]
+    };
+    const rides = {
+      MK: {
+        fantasy: [
+          {emoji:"⛏️", name:"Seven Dwarfs Mine Train"},
+          {emoji:"🌊", name:"Tiana's Bayou Adventure (Log Flume)"},
+          {emoji:"🌍", name:"It's a Small World"}
+        ],
+        frontier: [
+          {emoji:"🚂", name:"Big Thunder Mountain Railroad"}
+        ],
+        adventure: [
+          {emoji:"🦜", name:"Jungle Cruise"},
+          {emoji:"🏴‍☠️", name:"Pirates of the Caribbean"}
+        ],
+        liberty: [
+          {emoji:"👻", name:"Haunted Mansion"}
+        ],
+        tomorrow: [
+          {emoji:"🏍️", name:"TRON Lightcycle Run"}
+        ]
+      },
+      HS: {
+        sw: [
+          {emoji:"⭐", name:"Star Wars: Rise of the Resistance"},
+          {emoji:"🚀", name:"Millennium Falcon: Smugglers Run"}
+        ],
+        toy: [
+          {emoji:"🐶", name:"Slinky Dog Dash"}
+        ],
+        sunset: [
+          {emoji:"🏨", name:"Tower of Terror"}
+        ]
+      },
+      AK: {
+        pandora: [
+          {emoji:"🦋", name:"Avatar Flight of Passage"},
+          {emoji:"🛶", name:"Na'vi River Journey"}
+        ],
+        africa: [
+          {emoji:"🦁", name:"Kilimanjaro Safaris"}
+        ],
+        asia: [
+          {emoji:"⛰️", name:"Expedition Everest"},
+          {emoji:"🌊", name:"Kali River Rapids"}
+        ],
+        dino: [
+          {emoji:"🦖", name:"DINOSAUR"}
+        ]
+      },
+      EPCOT: {
+        discovery: [
+          {emoji:"🚀", name:"Guardians of the Galaxy: Cosmic Rewind"}
+        ],
+        test: [
+          {emoji:"🏎️", name:"Test Track"}
+        ]
+      },
+      USF: {
+        diagon: [
+          {emoji:"🐉", name:"Harry Potter and the Escape from Gringotts"}
+        ],
+        hogwarts: [
+          {emoji:"🚂", name:"Hogwarts Express"}
+        ]
+      },
+      IOA: {
+        jurassic: [
+          {emoji:"🎢", name:"Jurassic World VelociCoaster"},
+          {emoji:"🚤", name:"Jurassic Park River Adventure"}
+        ],
+        hogsmeade: [
+          {emoji:"🏍️", name:"Hagrid's Magical Creatures Motorbike Adventure"},
+          {emoji:"🧙‍♂️", name:"Harry Potter and the Forbidden Journey"}
+        ]
+      },
+      EU: {
+        celestial: [
+          {emoji:"🚗", name:"Starfall Racers"}
+        ],
+        ministry: [
+          {emoji:"🎩", name:"Harry Potter and the Ministry of Magic"}
+        ],
+        snw: [
+          {emoji:"🏎️", name:"Bowser’s Challenge"},
+          {emoji:"⛏️", name:"Minecart Madness"}
+        ],
+        berk: [
+          {emoji:"🐉", name:"Hiccup’s Wing Gliders"},
+          {emoji:"🐲", name:"Dragon Racer Rally"}
+        ]
+      }
+    };
+    const parkList = ["MK","EPCOT","HS","AK","USF","IOA","EU"];
+    const saved = JSON.parse(localStorage.getItem("hiddenParkFullScreenCharlieRides") || "{}");
+    const foodDone = JSON.parse(localStorage.getItem('hiddenParkFoodStatus') || '{}');
+    const foodFav = JSON.parse(localStorage.getItem('hiddenParkFoodFav') || '{}');
+    const achievements = JSON.parse(localStorage.getItem('parkAchievements') || '{}');
+    const huntStatus = JSON.parse(localStorage.getItem('photoHunts') || '{}');
+    const questLog = JSON.parse(localStorage.getItem('questLog') || '[]');
+    const quests = [
+      "Take a silly photo on the next ride",
+      "Each person finds something green",
+      "Try a snack you've never had",
+      "Compliment a cast member",
+      "Spot three hidden Mickeys",
+      "Trade pins with someone new"
+    ];
+    const waitTimes = {
+      "Tiana's Bayou Adventure (Log Flume)": {morning: 25, afternoon: 45, evening: 35},
+      "It's a Small World": {morning: 15, afternoon: 25, evening: 20},
+      "Big Thunder Mountain Railroad": {morning: 20, afternoon: 40, evening: 30},
+      "Jungle Cruise": {morning: 30, afternoon: 60, evening: 40},
+      "Pirates of the Caribbean": {morning: 20, afternoon: 40, evening: 25},
+      "Haunted Mansion": {morning: 15, afternoon: 35, evening: 20},
+      "TRON Lightcycle Run": {morning: 40, afternoon: 70, evening: 50},
+      "Star Wars: Rise of the Resistance": {morning: 60, afternoon: 90, evening: 70},
+      "Millennium Falcon: Smugglers Run": {morning: 45, afternoon: 75, evening: 55},
+      "Slinky Dog Dash": {morning: 40, afternoon: 80, evening: 60},
+      "Tower of Terror": {morning: 25, afternoon: 50, evening: 35},
+      "Avatar Flight of Passage": {morning: 60, afternoon: 90, evening: 40},
+      "Na'vi River Journey": {morning: 30, afternoon: 60, evening: 35},
+      "Kilimanjaro Safaris": {morning: 20, afternoon: 40, evening: 25},
+      "Expedition Everest": {morning: 15, afternoon: 30, evening: 20},
+      "Kali River Rapids": {morning: 20, afternoon: 45, evening: 30},
+      "DINOSAUR": {morning: 20, afternoon: 40, evening: 25},
+      "Guardians of the Galaxy: Cosmic Rewind": {morning: 50, afternoon: 80, evening: 60},
+      "Test Track": {morning: 40, afternoon: 70, evening: 50},
+      "Harry Potter and the Escape from Gringotts": {morning: 35, afternoon: 65, evening: 45},
+      "Hogwarts Express": {morning: 20, afternoon: 40, evening: 25},
+      "Jurassic World VelociCoaster": {morning: 30, afternoon: 60, evening: 45},
+      "Jurassic Park River Adventure": {morning: 20, afternoon: 45, evening: 35},
+      "Hagrid's Magical Creatures Motorbike Adventure": {morning: 60, afternoon: 90, evening: 70},
+      "Harry Potter and the Forbidden Journey": {morning: 30, afternoon: 45, evening: 25},
+      "Starfall Racers": {morning: 40, afternoon: 70, evening: 55},
+      "Harry Potter and the Ministry of Magic": {morning: 50, afternoon: 80, evening: 60},
+      "Bowser’s Challenge": {morning: 40, afternoon: 70, evening: 35},
+      "Minecart Madness": {morning: 30, afternoon: 60, evening: 40},
+      "Hiccup’s Wing Gliders": {morning: 25, afternoon: 50, evening: 35},
+      "Dragon Racer Rally": {morning: 20, afternoon: 45, evening: 30}
+    };
+    async function fetchWaitTimes() {
+      try {
+        const resp = await fetch('https://queue-times.com/en-US/api/park');
+        if (resp.ok) {
+          const data = await resp.json();
+          (data.parks || []).forEach(p => {
+            (p.rides || []).forEach(r => {
+              if (r.waitTime != null) {
+                waitTimes[r.name] = {
+                  morning: r.waitTime,
+                  afternoon: r.waitTime,
+                  evening: r.waitTime
+                };
+              }
+            });
+          });
+        }
+      } catch (e) {
+        console.error('Failed to fetch wait times', e);
+      }
+      populatePlanner();
+      loadSchedule();
+      updateRideWaitTimes();
+    }
+    const rainyTips = [
+      "Pirates of the Caribbean is a great indoor escape.",
+      "Catch Festival of the Lion King to stay dry.",
+      "Harry Potter and the Forbidden Journey keeps you out of the rain."
+    ];
+    const baseHunts = [
+      {emoji:"🐭", desc:"Hidden Mickey in Pirates queue"},
+      {emoji:"🗝️", desc:"Secret key near MIB lockers"},
+      {emoji:"🧙‍♂️", desc:"Pose with a wand outside Ollivanders"},
+      {emoji:"🤖", desc:"Track marks in Galaxy's Edge"}
+    ];
+    const photoHunts = [
+      ...baseHunts,
+      ...parkList.flatMap(p =>
+        secrets[p].map(h => ({ emoji: h.emoji, desc: h.name }))
+      )
+    ];
+    // Render secrets (Cool Hidden Stuff)
+    parkList.forEach(park => {
+      const grid = document.getElementById(park + "-secrets");
+      secrets[park].forEach((s, idx) => {
+        const key = `${park}-secret-${idx}`;
+        const card = document.createElement("div");
+        card.className = "secret-card glass-card" + (saved[key] ? " done" : "");
+        card.innerHTML = `
+          <div class="card-content">
+            <span class="card-emoji">${s.emoji}</span>
+            <div class="card-info">
+              <div class="card-name">${s.name}</div>
+              <div class="card-desc">${s.desc}</div>
+            </div>
+            <span class="tick">✔️</span>
+          </div>`;
+        card.onclick = function(e) {
+          card.classList.toggle("done");
+          saved[key] = card.classList.contains("done");
+          localStorage.setItem("hiddenParkFullScreenCharlieRides", JSON.stringify(saved));
+          checkBadge(grid);
+        };
+        grid.appendChild(card);
+      });
     });
-    sec.appendChild(ul);
-    const secretHeader=document.createElement('h4');secretHeader.textContent='Cool Hidden Stuff';sec.appendChild(secretHeader);
-    const p=document.createElement('p');p.textContent=info.secrets.join(', ');sec.appendChild(p);
-    container.appendChild(sec);
-  }
-}
+    // Render rides by area (Must-Do Rides)
+    function renderRides(park, area, gridId) {
+      const rideArr = (rides[park] && rides[park][area]) || [];
+      const grid = document.getElementById(gridId);
+      rideArr.forEach((ride, idx) => {
+        const key = `${park}-ride-${area}-${idx}`;
+        const card = document.createElement("div");
+        card.className = "ride-card glass-card" + (saved[key] ? " done" : "");
+        card.innerHTML = `
+          <div class="card-content">
+            <span class="card-emoji">${ride.emoji}</span>
+            <div class="card-info">
+              <div class="card-name">${ride.name}</div>
+              <div class="card-wait"></div>
+            </div>
+            <span class="tick">✔️</span>
+          </div>`;
+        card.onclick = function(e) {
+          card.classList.toggle("done");
+          saved[key] = card.classList.contains("done");
+          localStorage.setItem("hiddenParkFullScreenCharlieRides", JSON.stringify(saved));
+          checkBadge(grid);
+        };
+        grid.appendChild(card);
+      });
+      updateRideWaitTimes();
+    }
 
-function buildFood(){
-  const list=document.getElementById('food-list');
-  list.innerHTML='';
-  const term=document.getElementById('food-search').value.toLowerCase();
-  const filter=document.getElementById('food-filter').value;
-  for(const [park,info] of Object.entries(parks)){
-    info.foods.forEach(f=>{
-      if(filter!=='all'&&f.type!==filter)return;
-      if(term && !f.name.toLowerCase().includes(term))return;
-      const li=document.createElement('li');li.textContent=`${f.emoji} ${f.name} (${park})`;li.dataset.key=`${park}-${f.name}`;
-      if(progress.food&&progress.food[li.dataset.key])li.classList.add('fav');
-      li.addEventListener('click',()=>{if(!progress.food)progress.food={};progress.food[li.dataset.key]=!progress.food[li.dataset.key];li.classList.toggle('fav');save();});
-      list.appendChild(li);
+    function createFoodCards(selectedParks) {
+      const container = document.getElementById('food-sections');
+      if (!container) return;
+      container.innerHTML = '';
+      (selectedParks || Object.keys(foods)).forEach(park => {
+        const header = document.createElement('div');
+        header.className = 'land-header';
+        header.textContent = parkName(park);
+        container.appendChild(header);
+        const grid = document.createElement('div');
+        grid.className = 'foods-grid';
+        container.appendChild(grid);
+        foods[park].forEach((f, idx) => {
+          const key = `${park}-food-${idx}`;
+          const favKey = `${park}-foodfav-${idx}`;
+          const card = document.createElement('div');
+          card.className = 'food-card glass-card' + (foodDone[key] ? ' done' : '') + (foodFav[favKey] ? ' favorite' : '');
+          card.dataset.name = f.name.toLowerCase();
+          card.dataset.type = f.type;
+          card.innerHTML = `<div class="card-content"><span class="card-emoji">${f.emoji}</span><div class="card-info"><div class="card-name">${f.name}</div><div class="card-desc">${f.desc}</div></div><span class="fav">★</span><span class="tick">✔️</span></div>`;
+          card.addEventListener('click', e => {
+            if (e.target.classList.contains('fav')) {
+              e.stopPropagation();
+              card.classList.toggle('favorite');
+              foodFav[favKey] = card.classList.contains('favorite');
+              localStorage.setItem('hiddenParkFoodFav', JSON.stringify(foodFav));
+            } else {
+              card.classList.toggle('done');
+              foodDone[key] = card.classList.contains('done');
+              localStorage.setItem('hiddenParkFoodStatus', JSON.stringify(foodDone));
+              checkBadge(grid);
+            }
+          });
+          grid.appendChild(card);
+        });
+      });
+    }
+
+    function parkName(code) {
+      const names = {MK:'Magic Kingdom', EPCOT:'EPCOT', HS:'Hollywood Studios', AK:'Animal Kingdom', USF:'Universal Studios Florida', IOA:'Islands of Adventure', EU:'Epic Universe'};
+      return names[code] || code;
+    }
+
+    function filterFoods() {
+      const term = document.getElementById('food-search').value.toLowerCase();
+      const type = document.getElementById('food-filter').value;
+      document.querySelectorAll('.food-card').forEach(card => {
+        const matchText = card.dataset.name.includes(term);
+        const matchType = !type || card.dataset.type === type;
+        card.style.display = matchText && matchType ? '' : 'none';
+      });
+    }
+
+    function initFood() {
+      const container = document.getElementById('food-sections');
+      const parks = foodMode === 'disney' ? ['MK','EPCOT','HS','AK'] : ['USF','IOA','EU'];
+      if (!container.dataset.mode || container.dataset.mode !== foodMode) {
+        createFoodCards(parks);
+        container.dataset.mode = foodMode;
+      }
+      document.getElementById('food-search').addEventListener('input', filterFoods);
+      document.getElementById('food-filter').addEventListener('change', filterFoods);
+      filterFoods();
+    }
+    // Magic Kingdom
+    renderRides("MK", "fantasy", "MK-rides-fantasy");
+    renderRides("MK", "frontier", "MK-rides-frontier");
+    renderRides("MK", "adventure", "MK-rides-adventure");
+    renderRides("MK", "liberty", "MK-rides-liberty");
+    renderRides("MK", "tomorrow", "MK-rides-tomorrow");
+    // Hollywood Studios
+    renderRides("HS", "sw", "HS-rides-sw");
+    renderRides("HS", "toy", "HS-rides-toy");
+    renderRides("HS", "sunset", "HS-rides-sunset");
+    // Animal Kingdom
+    renderRides("AK", "pandora", "AK-rides-pandora");
+    renderRides("AK", "africa", "AK-rides-africa");
+    renderRides("AK", "asia", "AK-rides-asia");
+    renderRides("AK", "dino", "AK-rides-dino");
+    // EPCOT
+    renderRides("EPCOT", "discovery", "EPCOT-rides-discovery");
+    renderRides("EPCOT", "test", "EPCOT-rides-test");
+    // Universal Studios
+    renderRides("USF", "diagon", "USF-rides-diagon");
+    renderRides("USF", "hogwarts", "USF-rides-hogwarts");
+    // Islands of Adventure
+    renderRides("IOA", "jurassic", "IOA-rides-jurassic");
+    renderRides("IOA", "hogsmeade", "IOA-rides-hogsmeade");
+    // Epic Universe
+    renderRides("EU", "celestial", "EU-rides-celestial");
+    renderRides("EU", "ministry", "EU-rides-ministry");
+    renderRides("EU", "snw", "EU-rides-snw");
+    renderRides("EU", "berk", "EU-rides-berk");
+
+    document.querySelectorAll('.rides-grid,.secrets-grid,.foods-grid').forEach(checkBadge);
+    fetchWaitTimes();
+
+    function getTimeSlot() {
+      const h = new Date().getHours();
+      return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+    }
+
+    function updateRideWaitTimes() {
+      const slot = getTimeSlot();
+      document.querySelectorAll('.ride-card').forEach(card => {
+        const nameEl = card.querySelector('.card-name');
+        const waitEl = card.querySelector('.card-wait');
+        if (!nameEl || !waitEl) return;
+        const info = waitTimes[nameEl.textContent];
+        const w = info ? info[slot] : null;
+        waitEl.textContent = w != null ? w + 'm' : 'N/A';
+      });
+    }
+
+    function populatePlanner() {
+      const list = document.getElementById('planner-list');
+      list.innerHTML = '';
+      const slot = getTimeSlot();
+      const items = [];
+      parkList.forEach(p => {
+        if (rides[p]) {
+          Object.values(rides[p]).forEach(arr => arr.forEach(r => items.push(r)));
+        }
+        if (secrets[p]) { secrets[p].forEach(s => items.push(s)); }
+      });
+      items.forEach(obj => {
+        const info = waitTimes[obj.name];
+        const w = info ? info[slot] : null;
+        const el = document.createElement('div');
+        el.className = 'planner-item';
+        el.draggable = true;
+        el.dataset.name = obj.name;
+        el.innerHTML = `<span>${obj.emoji}</span><span>${obj.name}</span><span class="wait">${w != null ? w + 'm' : 'N/A'}</span>`;
+        el.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', obj.name);
+        });
+        list.appendChild(el);
+      });
+      loadSchedule();
+    }
+
+    function loadSchedule() {
+      const sched = JSON.parse(localStorage.getItem('dayPlan') || '{}');
+      ['morning','afternoon','evening'].forEach(slot => {
+        const zone = document.getElementById('slot-'+slot);
+        if (!zone) return;
+        zone.innerHTML = '';
+        (sched[slot] || []).forEach(name => {
+          const info = waitTimes[name];
+          const w = info ? info[slot] : null;
+          const div = document.createElement('div');
+          div.className = 'planner-item';
+          div.textContent = name;
+          const span = document.createElement('span');
+          span.className = 'wait';
+          span.textContent = w != null ? w + 'm' : 'N/A';
+          div.appendChild(span);
+          zone.appendChild(div);
+        });
+      });
+    }
+
+    function addToSchedule(slot, name) {
+      const sched = JSON.parse(localStorage.getItem('dayPlan') || '{}');
+      sched[slot] = sched[slot] || [];
+      sched[slot].push(name);
+      localStorage.setItem('dayPlan', JSON.stringify(sched));
+      loadSchedule();
+    }
+
+    document.querySelectorAll('.dropzone').forEach(zone => {
+      zone.addEventListener('dragover', e => e.preventDefault());
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        const name = e.dataTransfer.getData('text/plain');
+        const slot = zone.id.replace('slot-','');
+        addToSchedule(slot, name);
+      });
     });
-  }
-}
 
-document.getElementById('food-search').addEventListener('input',buildFood);
-document.getElementById('food-filter').addEventListener('change',buildFood);
+    function initWeatherTips() {
+      document.getElementById('weather-select').addEventListener('change', showWeatherTips);
+      showWeatherTips();
+    }
+    function showWeatherTips() {
+      const val = document.getElementById('weather-select').value;
+      const list = document.getElementById('weather-tips');
+      list.innerHTML = '';
+      if (val === 'rainy') {
+        rainyTips.forEach(t => {
+          const li = document.createElement('li');
+          li.textContent = t;
+          list.appendChild(li);
+        });
+      }
+    }
 
-function initDrag(){
-  document.querySelectorAll('.dropzone').forEach(zone=>{
-    zone.addEventListener('dragover',e=>{e.preventDefault();});
-    zone.addEventListener('drop',e=>{
-      e.preventDefault();const txt=e.dataTransfer.getData('text/plain');zone.appendChild(document.createElement('div')).textContent=txt;
-    });
-  });
-}
+    async function fetchWeather() {
+      const out = document.getElementById('live-weather');
+      if (!navigator.geolocation || !out) return;
+      out.textContent = 'Loading weather...';
+      navigator.geolocation.getCurrentPosition(async pos => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        try {
+          const resp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+          if (resp.ok) {
+            const data = await resp.json();
+            const cw = data.current_weather;
+            if (cw) {
+              const rainy = cw.weathercode >= 61 && cw.weathercode <= 67 || cw.weathercode >= 80 && cw.weathercode <= 82;
+              out.textContent = `${cw.temperature}\u00B0C, ${rainy ? 'Rain' : 'Clear'}`;
+              document.getElementById('weather-select').value = rainy ? 'rainy' : 'sunny';
+              showWeatherTips();
+              return;
+            }
+          }
+          out.textContent = 'Weather unavailable';
+        } catch(e) {
+          out.textContent = 'Weather load failed';
+        }
+      }, () => {
+        out.textContent = 'Location unavailable';
+      });
+    }
+    function checkBadge(grid) {
+      const id = grid.id;
+      const header = grid.previousElementSibling;
+      if (!header) return;
+      const allDone = Array.from(grid.children).length && Array.from(grid.children).every(c => c.classList.contains('done'));
+      if (allDone && !achievements[id]) {
+        achievements[id] = true;
+        localStorage.setItem('parkAchievements', JSON.stringify(achievements));
+        header.classList.add('badge-earned');
+        showBadge('Completed ' + header.textContent + '!');
+      } else if (!allDone && achievements[id]) {
+        achievements[id] = false;
+        localStorage.setItem('parkAchievements', JSON.stringify(achievements));
+        header.classList.remove('badge-earned');
+      }
+    }
+    function showBadge(text) {
+      document.getElementById('badge-text').textContent = text;
+      document.getElementById('badge-modal').style.display = 'flex';
+    }
+    function closeBadge() {
+      document.getElementById('badge-modal').style.display = 'none';
+    }
+    function renderHunts() {
+      const grid = document.getElementById('photo-list');
+      if (!grid.innerHTML) {
+        photoHunts.forEach((h, idx) => {
+          const key = 'hunt-' + idx;
+          const status = typeof huntStatus[key] === 'object' ? huntStatus[key] : { done: !!huntStatus[key] };
+          huntStatus[key] = status;
+          const card = document.createElement('div');
+          card.className = 'secret-card glass-card' + (status.done ? ' done' : '');
+          card.setAttribute('data-key', key);
+          const photoHtml = status.photo ? `<img class="hunt-photo" src="${status.photo}" alt="${h.desc}">` : '';
+          card.innerHTML = `<div class="card-content"><span class="card-emoji">${h.emoji}</span><div class="card-info"><div class="card-name">${h.desc}</div>${photoHtml}</div><span class="tick">✔️</span></div>`;
+          card.onclick = () => captureHuntPhoto(key, card);
+          grid.appendChild(card);
+        });
+      } else {
+        Array.from(grid.children).forEach(card => {
+          const key = card.getAttribute('data-key');
+          const status = huntStatus[key];
+          if (status && status.photo) {
+            let img = card.querySelector('img.hunt-photo');
+            if (!img) {
+              img = document.createElement('img');
+              img.className = 'hunt-photo';
+              img.alt = card.querySelector('.card-name').textContent;
+              card.querySelector('.card-info').appendChild(img);
+            }
+            img.src = status.photo;
+          }
+          if (status && status.done) card.classList.add('done');
+        });
+      }
+      localStorage.setItem('photoHunts', JSON.stringify(huntStatus));
+      checkBadge(grid);
+    }
 
-function checkBadges(park,total){
-  if(progress.badges&&progress.badges[park])return;
-  if(progress[park]&&progress[park].rides&&progress[park].rides.filter(Boolean).length===total){
-    if(!progress.badges)progress.badges={};progress.badges[park]=true;alert(`Badge earned for ${park}!`);save();
-  }
-}
 
-function showWeather(){
-  if(!navigator.geolocation)return;
-  navigator.geolocation.getCurrentPosition(pos=>{
-    const url=`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`;
-    fetch(url).then(r=>r.json()).then(d=>{
-      const t=d.current_weather.temperature;const tip=t>85?"It's hot! Stay hydrated." : t<60?"Pack a jacket." : "Great park weather!";
-      document.getElementById('weather').textContent=`${t}°F - ${tip}`;
-    }).catch(()=>{document.getElementById('weather').textContent='Weather unavailable.'});
-  },()=>{document.getElementById('weather').textContent='Location denied.'});
-}
+    let currentHuntKey = null;
+    let currentHuntCard = null;
+    function captureHuntPhoto(key, card) {
+      currentHuntKey = key;
+      currentHuntCard = card;
+      const input = document.getElementById('camera-input');
+      if (input) input.click();
+    }
+    function handleHuntPhoto(e) {
+      const file = e.target.files[0];
+      if (!file || !currentHuntKey) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        huntStatus[currentHuntKey] = { done: true, photo: reader.result };
+        localStorage.setItem('photoHunts', JSON.stringify(huntStatus));
+        if (currentHuntCard) {
+          currentHuntCard.classList.add('done');
+          let img = currentHuntCard.querySelector('img.hunt-photo');
+          if (!img) {
+            img = document.createElement('img');
+            img.className = 'hunt-photo';
+            img.alt = currentHuntCard.querySelector('.card-name').textContent;
+            currentHuntCard.querySelector('.card-info').appendChild(img);
+          }
+          img.src = reader.result;
+          checkBadge(document.getElementById('photo-list'));
+        }
+        currentHuntKey = null;
+        currentHuntCard = null;
+        e.target.value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+    const camInput = document.getElementById('camera-input');
+    if (camInput) camInput.addEventListener('change', handleHuntPhoto);
 
-function showWelcome(){
-  if(!localStorage.getItem('welcomed')){document.getElementById('welcome').style.display='flex';}
-  document.getElementById('welcome-close').onclick=()=>{document.getElementById('welcome').style.display='none';localStorage.setItem('welcomed','yes');};
-}
-
-function share(){
-  const code=btoa(JSON.stringify(progress));
-  const url=location.origin+location.pathname+'#'+code;
-  QRCode.toCanvas(document.createElement('canvas'),url,{width:128},(err,canvas)=>{if(!err){document.getElementById('qrcode').innerHTML='';document.getElementById('qrcode').appendChild(canvas);}});
-  prompt('Share this link',url);
-}
-
-function importProgress(){
-  const val=document.getElementById('import-box').value.trim();
-  try{const obj=JSON.parse(atob(val));progress=obj;save();location.reload();}catch(e){alert('Invalid code');}
-}
-
-function importFromHash(){
-  if(location.hash.length>1){try{progress=JSON.parse(atob(location.hash.slice(1)));save();location.hash='';}catch{}}
-}
-
-window.addEventListener('load',()=>{
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-  importFromHash();
-  buildParks();
-  buildFood();
-  initDrag();
-  showWeather();
-  showWelcome();
-  document.getElementById('share').addEventListener('click',share);
-  document.getElementById('import').addEventListener('click',importProgress);
-});
-</script>
+    let currentQuest = null;
+    function spinQuest() {
+      currentQuest = quests[Math.floor(Math.random() * quests.length)];
+      document.getElementById('quest-result').textContent = currentQuest;
+      document.getElementById('quest-complete-btn').style.display = 'inline-block';
+    }
+    function completeQuest() {
+      if (!currentQuest) return;
+      questLog.push(currentQuest);
+      localStorage.setItem('questLog', JSON.stringify(questLog));
+      showBadge('Quest Complete!');
+      renderQuestLog();
+      document.getElementById('quest-result').textContent = '';
+      document.getElementById('quest-complete-btn').style.display = 'none';
+      currentQuest = null;
+    }
+    function renderQuestLog() {
+      const list = document.getElementById('quest-log');
+      if (!list) return;
+      list.innerHTML = '';
+      questLog.forEach(q => {
+        const li = document.createElement('li');
+        li.textContent = q;
+        list.appendChild(li);
+      });
+    }
+    function exportProgress() {
+      const data = {
+        rides: saved,
+        foodDone,
+        foodFav,
+        achievements,
+        hunts: huntStatus,
+        quests: questLog
+      };
+      const code = btoa(JSON.stringify(data));
+      const url = location.origin + location.pathname + '#share=' + encodeURIComponent(code);
+      document.getElementById('party-code').value = url;
+      if (window.QRCode) {
+        const q = document.getElementById('qr-code');
+        q.innerHTML = '';
+        new QRCode(q, { text: url, width: 128, height: 128 });
+      }
+    }
+    function importProgress() {
+      try {
+        let input = document.getElementById('party-code').value.trim();
+        let code = '';
+        const idx = input.indexOf('#share=') >= 0 ? input.indexOf('#share=') : input.indexOf('?share=');
+        if (idx >= 0) {
+          code = decodeURIComponent(input.substring(idx + 7));
+        } else {
+          code = input;
+        }
+        const data = JSON.parse(atob(code));
+        localStorage.setItem('hiddenParkFullScreenCharlieRides', JSON.stringify(data.rides || {}));
+        localStorage.setItem('hiddenParkFoodStatus', JSON.stringify(data.foodDone || {}));
+        localStorage.setItem('hiddenParkFoodFav', JSON.stringify(data.foodFav || {}));
+        localStorage.setItem('parkAchievements', JSON.stringify(data.achievements || {}));
+        localStorage.setItem('photoHunts', JSON.stringify(data.hunts || {}));
+        localStorage.setItem('questLog', JSON.stringify(data.quests || []));
+        location.reload();
+      } catch(e) { alert('Invalid code'); }
+    }
+    function resetProgress() {
+      localStorage.removeItem("hiddenParkFullScreenCharlieRides");
+      localStorage.removeItem('hiddenParkFoodStatus');
+      localStorage.removeItem('hiddenParkFoodFav');
+      localStorage.removeItem('parkAchievements');
+      localStorage.removeItem('photoHunts');
+      localStorage.removeItem('questLog');
+      localStorage.removeItem('dayPlan');
+      localStorage.removeItem("seenCharlieWelcome");
+      location.reload();
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
 </body>
 </html>
-

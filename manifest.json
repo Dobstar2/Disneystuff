@@ -1,8 +1,8 @@
 {
-  "name": "Enchanted Park Companion",
-  "short_name": "ParkCompanion",
+  "name": "Dobbies Magical Park Guide",
+  "short_name": "DobbiesGuide",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#0d47a1",
-  "theme_color": "#0d47a1"
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e"
 }
