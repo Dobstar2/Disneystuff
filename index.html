@@ -1,45 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DisneyWorld Project</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
-    }
-    header {
-      background-color: #113ccf;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    main {
-      padding: 2rem;
-    }
-    footer {
-      background-color: #113ccf;
-      color: white;
-      text-align: center;
-      padding: 1rem;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enchanted Park Companion</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  body{font-family:sans-serif;margin:0;background:#fefefe;color:#222;}
+  header{background:linear-gradient(90deg,#0d47a1,#1976d2);color:#fff;padding:1rem;text-align:center;}
+  main{padding:1rem;max-width:900px;margin:auto;}
+  h2{margin-top:2rem;}
+  .park{border:1px solid #ccc;border-radius:8px;padding:1rem;margin-bottom:1rem;background:#fff;}
+  .rides li.completed{text-decoration:line-through;}
+  .filters{display:flex;gap:0.5rem;margin-bottom:0.5rem;}
+  .food li{cursor:pointer;}
+  .food li.fav{font-weight:bold;color:#c62828;}
+  .planner{display:flex;gap:1rem;}
+  .dropzone{flex:1;border:1px dashed #999;padding:0.5rem;min-height:60px;}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;}
+  .modal-content{background:#fff;padding:1rem;border-radius:8px;text-align:center;}
+  footer{text-align:center;padding:1rem;background:#0d47a1;color:#fff;margin-top:2rem;}
+</style>
 </head>
 <body>
-  <header>
-    <h1>Welcome to the DisneyWorld Project</h1>
-  </header>
-  <main>
-    <p>This is the beginning of something magical...</p>
-  </main>
-  <footer>
-    <p>&copy; 2025 DisneyWorld Project</p>
-  </footer>
+<div id="welcome" class="modal" style="display:none">
+  <div class="modal-content">
+    <h2>Welcome to Enchanted Park Companion!</h2>
+    <p>Track rides, snacks and plan your magical days.</p>
+    <button id="welcome-close">Let's go</button>
+  </div>
+</div>
+<header>
+  <h1>Enchanted Park Companion</h1>
+</header>
+<main>
+<section id="parks"></section>
+<h2>Food Tracker</h2>
+<div class="filters">
+  <input type="text" id="food-search" placeholder="Search food">
+  <select id="food-filter">
+    <option value="all">All</option>
+    <option value="sweet">Sweet</option>
+    <option value="savory">Savory</option>
+    <option value="drink">Drink</option>
+  </select>
+</div>
+<ul id="food-list" class="food"></ul>
+<h2>Day Planner</h2>
+<div class="planner">
+  <div id="morning" class="dropzone">Morning</div>
+  <div id="afternoon" class="dropzone">Afternoon</div>
+  <div id="evening" class="dropzone">Evening</div>
+</div>
+<h2>Weather Tips</h2>
+<p id="weather">Loading...</p>
+<h2>Party Mode</h2>
+<button id="share">Share Progress</button>
+<button id="import">Import Progress</button>
+<input type="text" id="import-box" placeholder="Paste code here">
+<div id="qrcode"></div>
+</main>
+<footer>&copy; 2025 Enchanted Park Companion</footer>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+const parks={
+  'Magic Kingdom':{
+    rides:[
+      {name:'🚂 Seven Dwarfs Mine Train',desc:'Family coaster'},
+      {name:"🌊 Tiana's Bayou Adventure",desc:'A watery journey'},
+      {name:"👶 It’s a Small World",desc:'Classic boat ride'},
+      {name:'💥 Big Thunder Mountain Railroad',desc:'Wildest ride in the wilderness'},
+      {name:'🛶 Jungle Cruise',desc:'Cheesy jokes abound'},
+      {name:'🏴‍☠️ Pirates of the Caribbean',desc:'Yo ho!'},
+      {name:'👻 Haunted Mansion',desc:'999 happy haunts'},
+      {name:'🏍️ TRON Lightcycle Run',desc:'High speed thrills'}
+    ],
+    secrets:['Haunted Mansion ring','Pixie Dust at Sir Mickey’s','Tangled lanterns','Camel spitting','Liberty Square sewage','Cinderella’s Wishing Well','Phone booths','Hidden Mickeys'],
+    foods:[{emoji:'🍍',name:'Dole Whip',type:'sweet'},{emoji:'🥟',name:'Cheeseburger Spring Rolls',type:'savory'},{emoji:'🍎',name:"LeFou’s Brew",type:'drink'}]
+  },
+  'EPCOT':{
+    rides:[{name:'🌌 Guardians of the Galaxy: Cosmic Rewind',desc:'Spin coaster'},{name:'🏎️ Test Track',desc:'Design a car'}],
+    secrets:['Club Cool Beverly','Bubblegum Wall','Germany train garden Mickey','Morocco alleys','Voices of Liberty','Imagination Pavilion secrets'],
+    foods:[{emoji:'🍞',name:'School Bread',type:'sweet'},{emoji:'🍦',name:'Macaron Ice Cream',type:'sweet'},{emoji:'🥃',name:'Beverly',type:'drink'}]
+  },
+  'Hollywood Studios':{
+    rides:[{name:'🚀 Rise of the Resistance',desc:'Epic battle'},{name:'🛸 Smugglers Run',desc:'Fly the Falcon'},{name:'🐶 Slinky Dog Dash',desc:'Family coaster'},{name:'🏨 Tower of Terror',desc:'Falling elevator'}],
+    secrets:['Singing in the Rain umbrella','Guest names at Tower','Walt\'s office window','Droids around Galaxy’s Edge'],
+    foods:[{emoji:'🌯',name:'Ronto Wrap',type:'savory'},{emoji:'🥛',name:'Blue/Green Milk',type:'drink'},{emoji:'🍪',name:'Jack Jack Cookie',type:'sweet'}]
+  },
+  'Animal Kingdom':{
+    rides:[{name:'🦋 Flight of Passage',desc:'Ride a banshee'},{name:'🌊 Na\'vi River Journey',desc:'Glow boat'},{name:'🦁 Kilimanjaro Safaris',desc:'Real animals'},{name:'🏔️ Expedition Everest',desc:'Yeti coaster'},{name:'💦 Kali River Rapids',desc:'Raft ride'},{name:'🦖 DINOSAUR',desc:'Time travel'}],
+    secrets:['DiVine living plant','Wilderness Explorer game','Simba pretzel','Kangaroos by Tree of Life','Yeti shrine'],
+    foods:[{emoji:'🧃',name:'Night Blossom Slush',type:'drink'},{emoji:'🍟',name:"Mr. Kamal’s Fries",type:'savory'},{emoji:'🦁',name:'Simba Pretzel',type:'savory'}]
+  },
+  'Universal Studios Florida':{
+    rides:[{name:'🪄 Escape from Gringotts',desc:'Bank adventure'},{name:'🚂 Hogwarts Express',desc:'Park connector'}],
+    secrets:['Kreacher in the window','Red phone booth','Knight Bus','Jaws easter eggs','Dragon fire'],
+    foods:[{emoji:'🍺',name:'Butterbeer',type:'drink'},{emoji:'🎃',name:'Pumpkin Juice',type:'drink'},{emoji:'🍩',name:'Lard Lad Donut',type:'sweet'}]
+  },
+  'Islands of Adventure':{
+    rides:[{name:'🎢 VelociCoaster',desc:'Thrilling coaster'},{name:'🦕 Jurassic River Adventure',desc:'Get soaked'},{name:"🏍️ Hagrid's Motorbike Adventure",desc:'Story coaster'},{name:'🧙‍♂️ Forbidden Journey',desc:'Castle ride'}],
+    secrets:['Raptor meet-and-greet','Moaning Myrtle in bathrooms','Secret room at MIB'],
+    foods:[{emoji:'🍧',name:'Frozen Butterbeer',type:'drink'},{emoji:'🍗',name:'Giant Turkey Leg',type:'savory'}]
+  },
+  'Epic Universe':{
+    rides:[{name:'🌠 Starfall Racers',desc:'Dual launch'},{name:'🏛️ Ministry of Magic ride',desc:'Dark ride'},{name:'🍄 Bowser’s Challenge',desc:'Kart racing'},{name:'⛏️ Minecart Madness',desc:'DK coaster'},{name:'🪁 Hiccup’s Wing Gliders',desc:'How to Train Your Dragon'},{name:'🐉 Dragon Racer Rally',desc:'Family coaster'}],
+    secrets:['Toothless in Isle of Berk','Secret Knockturn Alley door','Frankenstein’s area'],
+    foods:[{emoji:'🍄',name:'Toadstool Café',type:'savory'},{emoji:'🐲',name:'Dragon Fruit Sorbet',type:'sweet'}]
+  }
+};
+
+let progress=JSON.parse(localStorage.getItem('progress')||'{}');
+
+function save(){localStorage.setItem('progress',JSON.stringify(progress));}
+
+function buildParks(){
+  const container=document.getElementById('parks');
+  for(const [name,info] of Object.entries(parks)){
+    const sec=document.createElement('section');
+    sec.className='park';
+    sec.dataset.park=name;
+    const h=document.createElement('h3');h.textContent=name;sec.appendChild(h);
+    const rideHeader=document.createElement('h4');rideHeader.textContent='Must-Do Rides';sec.appendChild(rideHeader);
+    const ul=document.createElement('ul');ul.className='rides';
+    info.rides.forEach((r,i)=>{
+      const li=document.createElement('li');li.textContent=`${r.name} - ${r.desc}`;li.draggable=true;
+      if(progress[name]&&progress[name].rides&&progress[name].rides[i])li.classList.add('completed');
+      li.addEventListener('click',()=>{li.classList.toggle('completed');if(!progress[name])progress[name]={rides:[]};progress[name].rides[i]=li.classList.contains('completed');save();checkBadges(name,info.rides.length);});
+      li.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',li.textContent);});
+      ul.appendChild(li);
+    });
+    sec.appendChild(ul);
+    const secretHeader=document.createElement('h4');secretHeader.textContent='Cool Hidden Stuff';sec.appendChild(secretHeader);
+    const p=document.createElement('p');p.textContent=info.secrets.join(', ');sec.appendChild(p);
+    container.appendChild(sec);
+  }
+}
+
+function buildFood(){
+  const list=document.getElementById('food-list');
+  list.innerHTML='';
+  const term=document.getElementById('food-search').value.toLowerCase();
+  const filter=document.getElementById('food-filter').value;
+  for(const [park,info] of Object.entries(parks)){
+    info.foods.forEach(f=>{
+      if(filter!=='all'&&f.type!==filter)return;
+      if(term && !f.name.toLowerCase().includes(term))return;
+      const li=document.createElement('li');li.textContent=`${f.emoji} ${f.name} (${park})`;li.dataset.key=`${park}-${f.name}`;
+      if(progress.food&&progress.food[li.dataset.key])li.classList.add('fav');
+      li.addEventListener('click',()=>{if(!progress.food)progress.food={};progress.food[li.dataset.key]=!progress.food[li.dataset.key];li.classList.toggle('fav');save();});
+      list.appendChild(li);
+    });
+  }
+}
+
+document.getElementById('food-search').addEventListener('input',buildFood);
+document.getElementById('food-filter').addEventListener('change',buildFood);
+
+function initDrag(){
+  document.querySelectorAll('.dropzone').forEach(zone=>{
+    zone.addEventListener('dragover',e=>{e.preventDefault();});
+    zone.addEventListener('drop',e=>{
+      e.preventDefault();const txt=e.dataTransfer.getData('text/plain');zone.appendChild(document.createElement('div')).textContent=txt;
+    });
+  });
+}
+
+function checkBadges(park,total){
+  if(progress.badges&&progress.badges[park])return;
+  if(progress[park]&&progress[park].rides&&progress[park].rides.filter(Boolean).length===total){
+    if(!progress.badges)progress.badges={};progress.badges[park]=true;alert(`Badge earned for ${park}!`);save();
+  }
+}
+
+function showWeather(){
+  if(!navigator.geolocation)return;
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`;
+    fetch(url).then(r=>r.json()).then(d=>{
+      const t=d.current_weather.temperature;const tip=t>85?"It's hot! Stay hydrated." : t<60?"Pack a jacket." : "Great park weather!";
+      document.getElementById('weather').textContent=`${t}°F - ${tip}`;
+    }).catch(()=>{document.getElementById('weather').textContent='Weather unavailable.'});
+  },()=>{document.getElementById('weather').textContent='Location denied.'});
+}
+
+function showWelcome(){
+  if(!localStorage.getItem('welcomed')){document.getElementById('welcome').style.display='flex';}
+  document.getElementById('welcome-close').onclick=()=>{document.getElementById('welcome').style.display='none';localStorage.setItem('welcomed','yes');};
+}
+
+function share(){
+  const code=btoa(JSON.stringify(progress));
+  const url=location.origin+location.pathname+'#'+code;
+  QRCode.toCanvas(document.createElement('canvas'),url,{width:128},(err,canvas)=>{if(!err){document.getElementById('qrcode').innerHTML='';document.getElementById('qrcode').appendChild(canvas);}});
+  prompt('Share this link',url);
+}
+
+function importProgress(){
+  const val=document.getElementById('import-box').value.trim();
+  try{const obj=JSON.parse(atob(val));progress=obj;save();location.reload();}catch(e){alert('Invalid code');}
+}
+
+function importFromHash(){
+  if(location.hash.length>1){try{progress=JSON.parse(atob(location.hash.slice(1)));save();location.hash='';}catch{}}
+}
+
+window.addEventListener('load',()=>{
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  importFromHash();
+  buildParks();
+  buildFood();
+  initDrag();
+  showWeather();
+  showWelcome();
+  document.getElementById('share').addEventListener('click',share);
+  document.getElementById('import').addEventListener('click',importProgress);
+});
+</script>
 </body>
 </html>
+
