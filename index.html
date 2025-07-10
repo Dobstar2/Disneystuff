@@ -390,6 +390,10 @@
           <span class="emoji">📷</span>
           <span>Camera</span>
         </button>
+        <button class="menu-btn" onclick="openOthers()">
+          <span class="emoji">📝</span>
+          <span>Others</span>
+        </button>
       </div>
       
       <button class="reset-btn" onclick="resetProgress()">🔄 Reset All Progress</button>
@@ -659,6 +663,17 @@
       <div class="section-header">Quest Journal</div>
       <ul id="quest-log" style="list-style:none;padding:0;"></ul>
   </div>
+  <!-- OTHERS PAGE -->
+  <div id="others-page" class="page">
+      <button class="back-btn" onclick="goHome()">← Back to Parks</button>
+      <div class="park-title">📝 Others</div>
+      <div id="others-form" style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+        <input type="text" id="other-input" placeholder="Enter note..." style="flex:1;">
+        <button class="modal-btn" onclick="addOtherNote()">Add</button>
+      </div>
+      <div class="section-header">Your Notes</div>
+      <ul id="others-list" style="list-style:none;padding:0;"></ul>
+  </div>
   </main>
   <!-- Welcome Modal -->
   <div id="welcome-modal" class="modal" style="display:none;">
@@ -893,6 +908,10 @@
       document.getElementById('quest-result').textContent = '';
       document.getElementById('quest-complete-btn').style.display = 'none';
       currentQuest = null;
+    }
+    function openOthers() {
+      showPage('others-page');
+      renderOthers();
     }
     function goHome() {
       stopQRScan();
@@ -1696,6 +1715,36 @@
         li.textContent = q;
         list.appendChild(li);
       });
+    }
+    function categorizeNote(text) {
+      const t = text.toLowerCase();
+      if (/ride|coaster|attraction/.test(t)) return 'Ride';
+      if (/food|snack|drink|eat/.test(t)) return 'Food';
+      if (/photo|camera|picture/.test(t)) return 'Photo';
+      if (/secret|hidden|quest/.test(t)) return 'Secret';
+      return 'Other';
+    }
+    function renderOthers() {
+      const list = document.getElementById('others-list');
+      if (!list) return;
+      list.innerHTML = '';
+      const notes = JSON.parse(localStorage.getItem('otherNotes') || '[]');
+      notes.forEach(n => {
+        const li = document.createElement('li');
+        li.textContent = n.text + ' [' + n.category + ']';
+        list.appendChild(li);
+      });
+    }
+    function addOtherNote() {
+      const input = document.getElementById('other-input');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+      const notes = JSON.parse(localStorage.getItem('otherNotes') || '[]');
+      notes.push({ text, category: categorizeNote(text) });
+      localStorage.setItem('otherNotes', JSON.stringify(notes));
+      input.value = '';
+      renderOthers();
     }
     function exportProgress() {
       const data = {
