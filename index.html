@@ -252,6 +252,15 @@
     /* Day Planner styles */
     .planner-flex { display: flex; gap: 2rem; flex-wrap: wrap; }
     .planner-list { flex: 1; min-width: 250px; }
+    .planner-search {
+      width: 100%;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      color: var(--text-primary);
+    }
     .planner-item {
       background: var(--glass-bg);
       border: 1px solid var(--glass-border);
@@ -262,6 +271,15 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+    }
+    .planner-item button {
+      margin-left: auto;
+      padding: 0.25rem 0.5rem;
+      border: none;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
     }
     .planner-item .wait { font-size: 0.8rem; color: var(--warning); margin-left: auto; }
     .planner-schedule { flex: 2; display: flex; gap: 1rem; flex-wrap: wrap; }
@@ -539,7 +557,10 @@
       <button class="back-btn" onclick="openDisney()">← Back</button>
       <div class="park-title">🗓️ Plan Your Day</div>
       <div class="planner-flex">
-        <div class="planner-list" id="planner-list"></div>
+        <div class="planner-list">
+          <input type="text" id="planner-search" class="planner-search" placeholder="Search activities...">
+          <div id="planner-list"></div>
+        </div>
         <div class="planner-schedule">
           <div class="schedule-column">
             <div class="schedule-header">Morning</div>
@@ -715,6 +736,12 @@
       fetchWaitTimes();
       initWeatherTips();
       fetchWeather();
+      const search = document.getElementById('planner-search');
+      if (search) {
+        search.value = '';
+        search.removeEventListener('input', filterPlannerList);
+        search.addEventListener('input', filterPlannerList);
+      }
     }
     let foodMode = 'disney';
     function openFood(mode = 'disney') {
@@ -1434,12 +1461,17 @@
         el.draggable = true;
         el.dataset.name = obj.name;
         el.innerHTML = `<span>${obj.emoji}</span><span>${obj.name}</span><span class="wait">${w != null ? w + 'm' : 'N/A'}</span>`;
+        const select = document.createElement('select');
+        select.innerHTML = `<option value="">Add...</option><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="evening">Evening</option>`;
+        select.onchange = () => { if (select.value) { addToSchedule(select.value, obj.name); select.value=''; } };
+        el.appendChild(select);
         el.addEventListener('dragstart', e => {
           e.dataTransfer.setData('text/plain', obj.name);
         });
         list.appendChild(el);
       });
       loadSchedule();
+      filterPlannerList();
     }
 
     function loadSchedule() {
@@ -1458,9 +1490,18 @@
           span.className = 'wait';
           span.textContent = w != null ? w + 'm' : 'N/A';
           div.appendChild(span);
+          div.onclick = () => removeFromSchedule(slot, name);
           zone.appendChild(div);
         });
       });
+    }
+
+    function removeFromSchedule(slot, name) {
+      const sched = JSON.parse(localStorage.getItem('dayPlan') || '{}');
+      if (!sched[slot]) return;
+      sched[slot] = sched[slot].filter(n => n !== name);
+      localStorage.setItem('dayPlan', JSON.stringify(sched));
+      loadSchedule();
     }
 
     function addToSchedule(slot, name) {
@@ -1469,6 +1510,14 @@
       sched[slot].push(name);
       localStorage.setItem('dayPlan', JSON.stringify(sched));
       loadSchedule();
+    }
+
+    function filterPlannerList() {
+      const term = (document.getElementById('planner-search').value || '').toLowerCase();
+      document.querySelectorAll('#planner-list .planner-item').forEach(item => {
+        const name = (item.dataset.name || '').toLowerCase();
+        item.style.display = name.includes(term) ? 'flex' : 'none';
+      });
     }
 
     document.querySelectorAll('.dropzone').forEach(zone => {
