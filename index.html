@@ -29,6 +29,15 @@
       --bg-gradient-start: #1e1b4b;
       --bg-gradient-end: #4338ca;
     }
+    body.light {
+      --bg-dark: #f8fafc;
+      --text-primary: #1e293b;
+      --text-secondary: rgba(30, 41, 59, 0.7);
+      --glass-bg: rgba(255,255,255,0.6);
+      --glass-border: rgba(0,0,0,0.1);
+      --bg-gradient-start: #e0e7ff;
+      --bg-gradient-end: #c7d2fe;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
       font-family: 'Poppins', sans-serif;
@@ -221,6 +230,34 @@
     .reset-btn:hover {
       transform: translateY(-3px);
       box-shadow: 0 8px 25px rgba(109,40,217,0.4);
+    }
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 9;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.5rem 0;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .nav-btn:hover { opacity: 0.8; }
+    #site-footer {
+      text-align: center;
+      padding: 1rem 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
     }
     .park-title {
       font-family: 'Playfair Display', serif;
@@ -454,6 +491,7 @@
     .schedule-header { font-weight: 700; margin-bottom: 0.5rem; text-align: center; }
     .dropzone { min-height: 150px; }
     #quest-log li { margin-bottom: 0.5rem; }
+    .tips-list { list-style: disc; padding-left: 1.5rem; }
     /* Food Tracker styles */
     .filter-controls { display: flex; gap: 1rem; margin: 1rem 0 2rem; }
     .filter-controls input, .filter-controls select {
@@ -515,6 +553,13 @@
 <body>
   <div class="bg-animated"></div>
   <div class="particles" id="particles"></div>
+  <nav class="top-nav">
+    <button class="nav-btn" onclick="goHome()">🏰 Parks</button>
+    <button class="nav-btn" onclick="openPlanner()">🎢 Rides</button>
+    <button class="nav-btn" onclick="openFood()">🍔 Food</button>
+    <button class="nav-btn" onclick="openParty()">🎉 Party</button>
+    <button class="nav-btn" id="theme-toggle">🌙</button>
+  </nav>
   
   <main class="container">
     <!-- Main Menu -->
@@ -635,6 +680,10 @@
       <div class="rides-grid" id="MK-rides-tomorrow"></div>
       <div class="section-header">Cool Hidden Stuff</div>
       <div class="secrets-grid" id="MK-secrets"></div>
+      <div class="section-header">Snack Highlights</div>
+      <div class="foods-grid" id="MK-food-highlights"></div>
+      <div class="section-header">Park Tips</div>
+      <ul class="tips-list" id="MK-tips"></ul>
     </div>
     <!-- HOLLYWOOD STUDIOS -->
     <div id="park-HS" class="page">
@@ -649,6 +698,10 @@
       <div class="rides-grid" id="HS-rides-sunset"></div>
       <div class="section-header">Cool Hidden Stuff</div>
       <div class="secrets-grid" id="HS-secrets"></div>
+      <div class="section-header">Snack Highlights</div>
+      <div class="foods-grid" id="HS-food-highlights"></div>
+      <div class="section-header">Park Tips</div>
+      <ul class="tips-list" id="HS-tips"></ul>
     </div>
     <!-- ANIMAL KINGDOM -->
     <div id="park-AK" class="page">
@@ -665,6 +718,10 @@
       <div class="rides-grid" id="AK-rides-dino"></div>
       <div class="section-header">Cool Hidden Stuff</div>
       <div class="secrets-grid" id="AK-secrets"></div>
+      <div class="section-header">Snack Highlights</div>
+      <div class="foods-grid" id="AK-food-highlights"></div>
+      <div class="section-header">Park Tips</div>
+      <ul class="tips-list" id="AK-tips"></ul>
     </div>
     <!-- EPCOT -->
     <div id="park-EPCOT" class="page">
@@ -677,6 +734,10 @@
       <div class="rides-grid" id="EPCOT-rides-test"></div>
       <div class="section-header">Cool Hidden Stuff</div>
       <div class="secrets-grid" id="EPCOT-secrets"></div>
+      <div class="section-header">Snack Highlights</div>
+      <div class="foods-grid" id="EPCOT-food-highlights"></div>
+      <div class="section-header">Park Tips</div>
+      <ul class="tips-list" id="EPCOT-tips"></ul>
     </div>
     <!-- UNIVERSAL STUDIOS FLORIDA -->
     <div id="park-USF" class="page">
@@ -689,6 +750,10 @@
       <div class="rides-grid" id="USF-rides-hogwarts"></div>
       <div class="section-header">Cool Hidden Stuff</div>
       <div class="secrets-grid" id="USF-secrets"></div>
+      <div class="section-header">Snack Highlights</div>
+      <div class="foods-grid" id="USF-food-highlights"></div>
+      <div class="section-header">Park Tips</div>
+      <ul class="tips-list" id="USF-tips"></ul>
     </div>
     <!-- ISLANDS OF ADVENTURE -->
     <div id="park-IOA" class="page">
@@ -701,6 +766,10 @@
       <div class="rides-grid" id="IOA-rides-hogsmeade"></div>
       <div class="section-header">Cool Hidden Stuff</div>
       <div class="secrets-grid" id="IOA-secrets"></div>
+      <div class="section-header">Snack Highlights</div>
+      <div class="foods-grid" id="IOA-food-highlights"></div>
+      <div class="section-header">Park Tips</div>
+      <ul class="tips-list" id="IOA-tips"></ul>
     </div>
     <!-- EPIC UNIVERSE -->
     <div id="park-EU" class="page">
@@ -717,6 +786,10 @@
       <div class="rides-grid" id="EU-rides-berk"></div>
       <div class="section-header">Cool Hidden Stuff</div>
       <div class="secrets-grid" id="EU-secrets"></div>
+      <div class="section-header">Snack Highlights</div>
+      <div class="foods-grid" id="EU-food-highlights"></div>
+      <div class="section-header">Park Tips</div>
+      <ul class="tips-list" id="EU-tips"></ul>
     </div>
     <!-- DAY PLANNER -->
     <div id="planner-page" class="page">
@@ -804,12 +877,15 @@
       <button class="back-btn" onclick="goHome()">← Back to Parks</button>
       <div class="park-title">🎉 Party Mode</div>
       <p>Share your progress with friends. Use the link or scan the QR code.</p>
+      <input id="party-name-input" placeholder="Party name" style="width:100%;margin-top:0.5rem;padding:0.5rem;border-radius:8px;border:1px solid var(--glass-border);background:var(--glass-bg);color:var(--text-primary);">
+      <div id="party-status" style="margin-top:0.5rem;color:var(--text-secondary);"></div>
       <textarea id="party-code"></textarea>
       <div id="qr-code" style="margin-top:1rem;"></div>
       <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
         <button class="modal-btn" onclick="exportProgress()">Generate Link</button>
         <button class="modal-btn" onclick="importProgress()">Load Progress</button>
         <button class="modal-btn" onclick="startQRScan()">Scan Code</button>
+        <button class="modal-btn" onclick="imHere()">I'm here!</button>
       </div>
       <video id="qr-video" style="display:none;width:100%;max-width:300px;margin-top:1rem;" playsinline></video>
       <canvas id="qr-canvas" style="display:none;"></canvas>
@@ -837,6 +913,7 @@
       <ul id="others-list" style="list-style:none;padding:0;"></ul>
   </div>
   </main>
+  <footer id="site-footer">v1.0 · <a href="https://disneyworld.disney.go.com/calendars/" target="_blank" rel="noopener">Park Hours</a></footer>
   <!-- Welcome Modal -->
   <div id="welcome-modal" class="modal" style="display:none;">
     <div class="modal-content">
@@ -1035,11 +1112,34 @@
         arStream = null;
       }
     }
-    function openParty() {
-      stopQRScan();
-      showPage('party-page');
-      exportProgress();
+  function openParty() {
+    stopQRScan();
+    showPage('party-page');
+    const input = document.getElementById('party-name-input');
+    if (input) input.value = partyName;
+    updatePartyStatus();
+    exportProgress();
+  }
+  function updatePartyStatus() {
+    const status = document.getElementById('party-status');
+    if (!status) return;
+    if (partyName) {
+      const last = partyPresence[partyName];
+      status.textContent = `Party: ${partyName}` + (last ? ` (last check-in ${last})` : '');
+    } else {
+      status.textContent = 'No party joined';
     }
+  }
+  function imHere() {
+    const input = document.getElementById('party-name-input');
+    if (!input) return;
+    partyName = input.value.trim();
+    if (!partyName) return;
+    localStorage.setItem('partyName', partyName);
+    partyPresence[partyName] = new Date().toLocaleTimeString();
+    localStorage.setItem('partyPresence', JSON.stringify(partyPresence));
+    updatePartyStatus();
+  }
     function isiOS() {
       return /iphone|ipad|ipod/i.test(navigator.userAgent);
     }
@@ -1264,16 +1364,25 @@
         {emoji:"🔥", name:"Moe’s Flaming Moe", desc:"Moe’s Tavern", type:"drink"}
       ],
       IOA: [
-        {emoji:"🍧", name:"Frozen Butterbeer", desc:"Three Broomsticks", type:"drink"},
-        {emoji:"🥟", name:"Pumpkin Pasties", desc:"Honeydukes", type:"sweet"},
-        {emoji:"🍗", name:"Giant Turkey Leg", desc:"Multiple Locations", type:"savory"},
-        {emoji:"🥖", name:"Churros", desc:"Snack Carts", type:"sweet"}
+          {emoji:"🍧", name:"Frozen Butterbeer", desc:"Three Broomsticks", type:"drink"},
+          {emoji:"🥟", name:"Pumpkin Pasties", desc:"Honeydukes", type:"sweet"},
+          {emoji:"🍗", name:"Giant Turkey Leg", desc:"Multiple Locations", type:"savory"},
+          {emoji:"🥖", name:"Churros", desc:"Snack Carts", type:"sweet"}
       ],
       EU: [
-        {emoji:"🍄", name:"Toadstool Café treats", desc:"Super Nintendo World", type:"sweet"},
-        {emoji:"🧙", name:"Wizarding World specialty drinks", desc:"Ministry of Magic", type:"drink"},
-        {emoji:"🐲", name:"Dragon Fruit Sorbet", desc:"Isle of Berk", type:"sweet"}
+          {emoji:"🍄", name:"Toadstool Café treats", desc:"Super Nintendo World", type:"sweet"},
+          {emoji:"🧙", name:"Wizarding World specialty drinks", desc:"Ministry of Magic", type:"drink"},
+          {emoji:"🐲", name:"Dragon Fruit Sorbet", desc:"Isle of Berk", type:"sweet"}
       ]
+    };
+    const parkTips = {
+      MK: ["Rope drop Seven Dwarfs Mine Train","Grab Genie+ for Peter Pan","Enjoy fireworks from Main Street"],
+      EPCOT: ["Rope drop Frozen or Remy","Use festivals for snacking","Ride Guardians with virtual queue"],
+      HS: ["Hit Rise of the Resistance first","Genie+ good for Slinky Dog","See Fantasmic at night"],
+      AK: ["Flight of Passage lines shortest early","Safari best in morning","Catch Lion King show"],
+      USF: ["Single rider at Gringotts","Try Butterbeer three ways"],
+      IOA: ["Hagrid's Motorbike at rope drop","VelociCoaster front row","Cool off on River Adventure"],
+      EU: ["Check out Starfall Racers early","Explore Celestial Park at night"]
     };
     const rides = {
       MK: {
@@ -1374,6 +1483,8 @@
     const achievements = JSON.parse(localStorage.getItem('parkAchievements') || '{}');
     const huntStatus = JSON.parse(localStorage.getItem('photoHunts') || '{}');
     const questLog = JSON.parse(localStorage.getItem('questLog') || '[]');
+    let partyName = localStorage.getItem('partyName') || '';
+    const partyPresence = JSON.parse(localStorage.getItem('partyPresence') || '{}');
     const quests = [
       "Take a silly photo on the next ride",
       "Each person finds something green",
@@ -1547,6 +1658,29 @@
       });
     }
 
+    function renderFoodHighlights(park) {
+      const grid = document.getElementById(`${park}-food-highlights`);
+      if (!grid) return;
+      grid.innerHTML = '';
+      (foods[park] || []).slice(0,3).forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'food-card glass-card';
+        card.innerHTML = `<div class="card-content"><span class="card-emoji">${f.emoji}</span><div class="card-info"><div class="card-name">${f.name}</div><div class="card-desc">${f.desc}</div></div></div>`;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderParkTips(park) {
+      const list = document.getElementById(`${park}-tips`);
+      if (!list) return;
+      list.innerHTML = '';
+      (parkTips[park] || []).forEach(t => {
+        const li = document.createElement('li');
+        li.textContent = t;
+        list.appendChild(li);
+      });
+    }
+
     function parkName(code) {
       const names = {MK:'Magic Kingdom', EPCOT:'EPCOT', HS:'Hollywood Studios', AK:'Animal Kingdom', USF:'Universal Studios Florida', IOA:'Islands of Adventure', EU:'Epic Universe'};
       return names[code] || code;
@@ -1602,6 +1736,11 @@
     renderRides("EU", "ministry", "EU-rides-ministry");
     renderRides("EU", "snw", "EU-rides-snw");
     renderRides("EU", "berk", "EU-rides-berk");
+
+    parkList.forEach(p => {
+      renderFoodHighlights(p);
+      renderParkTips(p);
+    });
 
     document.querySelectorAll('.rides-grid,.secrets-grid,.foods-grid').forEach(checkBadge);
     fetchWaitTimes();
@@ -1915,7 +2054,8 @@
         foodFav,
         achievements,
         hunts: huntStatus,
-        quests: questLog
+        quests: questLog,
+        party: partyName
       };
       const code = btoa(JSON.stringify(data));
       const url = location.origin + location.pathname + '#share=' + encodeURIComponent(code);
@@ -1943,6 +2083,10 @@
         localStorage.setItem('parkAchievements', JSON.stringify(data.achievements || {}));
         localStorage.setItem('photoHunts', JSON.stringify(data.hunts || {}));
         localStorage.setItem('questLog', JSON.stringify(data.quests || []));
+        if (data.party) {
+          partyName = data.party;
+          localStorage.setItem('partyName', partyName);
+        }
         location.reload();
       } catch(e) { alert('Invalid code'); }
     }
@@ -1957,6 +2101,13 @@
       localStorage.removeItem("seenCharlieWelcome");
       location.reload();
     }
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+    }
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') document.body.classList.add('light');
+    document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
   </script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
