@@ -758,14 +758,13 @@
   <div id="party-page" class="page">
       <button class="back-btn" onclick="goHome()">← Back to Parks</button>
       <div class="park-title">🎉 Party Mode</div>
-      <p>Create or join a party to sync your plans.</p>
-      <textarea id="party-code" readonly></textarea>
+      <p>Share your progress with friends. Use the link or scan the QR code.</p>
+      <textarea id="party-code"></textarea>
       <div id="qr-code" style="margin-top:1rem;"></div>
-      <div class="party-actions" style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
-        <button class="modal-btn" onclick="partyModule.createParty()">Create Party</button>
-        <button class="modal-btn" onclick="partyModule.joinPartyManual()">Join Party</button>
+      <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
+        <button class="modal-btn" onclick="exportProgress()">Generate Link</button>
+        <button class="modal-btn" onclick="importProgress()">Load Progress</button>
         <button class="modal-btn" onclick="startQRScan()">Scan Code</button>
-        <button class="modal-btn" id="leave-party-btn" onclick="partyModule.leaveParty()" style="display:none;">Leave Party</button>
       </div>
       <video id="qr-video" style="display:none;width:100%;max-width:300px;margin-top:1rem;" playsinline></video>
       <canvas id="qr-canvas" style="display:none;"></canvas>
@@ -1372,7 +1371,6 @@
           card.classList.toggle("done");
           saved[key] = card.classList.contains("done");
           localStorage.setItem("hiddenParkFullScreenCharlieRides", JSON.stringify(saved));
-          if (window.partyModule) partyModule.saveParty();
           checkBadge(grid);
         };
         grid.appendChild(card);
@@ -1399,7 +1397,6 @@
           card.classList.toggle("done");
           saved[key] = card.classList.contains("done");
           localStorage.setItem("hiddenParkFullScreenCharlieRides", JSON.stringify(saved));
-          if (window.partyModule) partyModule.saveParty();
           checkBadge(grid);
         };
         grid.appendChild(card);
@@ -1433,12 +1430,10 @@
               card.classList.toggle('favorite');
               foodFav[favKey] = card.classList.contains('favorite');
               localStorage.setItem('hiddenParkFoodFav', JSON.stringify(foodFav));
-              if (window.partyModule) partyModule.saveParty();
             } else {
               card.classList.toggle('done');
               foodDone[key] = card.classList.contains('done');
               localStorage.setItem('hiddenParkFoodStatus', JSON.stringify(foodDone));
-              if (window.partyModule) partyModule.saveParty();
               checkBadge(grid);
             }
           });
@@ -1582,7 +1577,6 @@
       if (!sched[slot]) return;
       sched[slot] = sched[slot].filter(n => n !== name);
       localStorage.setItem('dayPlan', JSON.stringify(sched));
-      if (window.partyModule) partyModule.saveParty();
       loadSchedule();
     }
 
@@ -1591,7 +1585,6 @@
       sched[slot] = sched[slot] || [];
       sched[slot].push(name);
       localStorage.setItem('dayPlan', JSON.stringify(sched));
-      if (window.partyModule) partyModule.saveParty();
       loadSchedule();
     }
 
@@ -1666,13 +1659,11 @@
       if (allDone && !achievements[id]) {
         achievements[id] = true;
         localStorage.setItem('parkAchievements', JSON.stringify(achievements));
-        if (window.partyModule) partyModule.saveParty();
         header.classList.add('badge-earned');
         showBadge('Completed ' + header.textContent + '!');
       } else if (!allDone && achievements[id]) {
         achievements[id] = false;
         localStorage.setItem('parkAchievements', JSON.stringify(achievements));
-        if (window.partyModule) partyModule.saveParty();
         header.classList.remove('badge-earned');
       }
     }
@@ -1716,7 +1707,6 @@
         });
       }
       localStorage.setItem('photoHunts', JSON.stringify(huntStatus));
-      if (window.partyModule) partyModule.saveParty();
       checkBadge(grid);
     }
 
@@ -1736,7 +1726,6 @@
       reader.onload = () => {
         huntStatus[currentHuntKey] = { done: true, photo: reader.result };
         localStorage.setItem('photoHunts', JSON.stringify(huntStatus));
-        if (window.partyModule) partyModule.saveParty();
         if (currentHuntCard) {
           currentHuntCard.classList.add('done');
           let img = currentHuntCard.querySelector('img.hunt-photo');
@@ -1785,7 +1774,6 @@
       const notes = JSON.parse(localStorage.getItem('otherNotes') || '[]');
       notes.push({ text, category: categorizeNote(text) });
       localStorage.setItem('otherNotes', JSON.stringify(notes));
-      if (window.partyModule) partyModule.saveParty();
       input.value = '';
       renderOthers();
     }
@@ -1805,7 +1793,6 @@
         q.innerHTML = '';
         new QRCode(q, { text: url, width: 128, height: 128 });
       }
-      if (window.partyModule) { partyModule.saveParty(); partyModule.updateUI(); }
     }
     function importProgress() {
       try {
@@ -1823,7 +1810,6 @@
         localStorage.setItem('hiddenParkFoodFav', JSON.stringify(data.foodFav || {}));
         localStorage.setItem('parkAchievements', JSON.stringify(data.achievements || {}));
         localStorage.setItem('photoHunts', JSON.stringify(data.hunts || {}));
-        if (window.partyModule) { partyModule.saveParty(); partyModule.updateUI(); }
         location.reload();
       } catch(e) { alert('Invalid code'); }
     }
@@ -1835,11 +1821,9 @@
       localStorage.removeItem('photoHunts');
       localStorage.removeItem('dayPlan');
       localStorage.removeItem("seenCharlieWelcome");
-      if (window.partyModule) partyModule.saveParty();
       location.reload();
     }
   </script>
-  <script src="party.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script>
