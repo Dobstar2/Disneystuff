@@ -564,6 +564,10 @@
           <span class="emoji">🗺️</span>
           <span>Park Map</span>
         </a>
+        <a class="menu-btn" href="#microbit-page" onclick="openMicrobit()">
+          <span class="emoji">🤖</span>
+          <span>Micro:bit</span>
+        </a>
         <a class="menu-btn" href="#party-page" onclick="openParty()">
           <span class="emoji">🎉</span>
           <span>Party Mode</span>
@@ -800,6 +804,20 @@
     <p>Grant location access to see where you are in the park.</p>
     <div id="map-container"><iframe id="map-frame" allowfullscreen title="Park map"></iframe></div>
   </div>
+  <!-- MICROBIT CONNECTION -->
+  <div id="microbit-page" class="page">
+      <a class="back-btn" href="#main-menu" onclick="goHome()">← Back to Parks</a>
+      <div class="park-title">🤖 Micro:bit Connection</div>
+      <div id="microbit-status" class="subtitle">Not Connected ❌</div>
+      <button class="modal-btn" style="margin-bottom:1rem;width:100%;max-width:300px;" onclick="microbitModule.connect()">Connect</button>
+      <div class="main-menu-grid">
+        <button class="menu-btn" onclick="microbitModule.triggerRide('tron')">Tron</button>
+        <button class="menu-btn" onclick="microbitModule.triggerRide('space')">Space Mountain</button>
+        <button class="menu-btn" onclick="microbitModule.triggerRide('pirates')">Pirates</button>
+        <button class="menu-btn" onclick="microbitModule.triggerRide('haunted')">Haunted Mansion</button>
+      </div>
+      <button class="modal-btn" style="margin-top:1.5rem;" onclick="microbitModule.party()">Party Mode</button>
+  </div>
   <!-- PARTY MODE -->
   <div id="party-page" class="page">
       <a class="back-btn" href="#main-menu" onclick="goHome()">← Back to Parks</a>
@@ -1018,6 +1036,12 @@
       stopQRScan();
       showPage('party-page');
       exportProgress();
+    }
+    function openMicrobit() {
+      showPage('microbit-page');
+      const statusEl = document.getElementById('microbit-status');
+      if (statusEl) microbitModule.setStatusEl(statusEl);
+      microbitModule.connect(true);
     }
     function isiOS() {
       return /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -1917,41 +1941,6 @@
       document.body.appendChild(msg);
     });
   </script>
-  <script>
-    let device, writer;
-
-    async function connectMicrobit() {
-      if (!device) {
-        device = await navigator.bluetooth.requestDevice({
-          filters: [{ namePrefix: "BBC micro:bit" }],
-          optionalServices: [0x6e400001b5a3f393e0a9e50e24dcca9e]
-        });
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-        writer = await service.getCharacteristic("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
-      }
-    }
-
-    async function sendToMicrobit(message) {
-      try {
-        await connectMicrobit();
-        const data = new TextEncoder().encode(message + "\n");
-        await writer.writeValue(data);
-        console.log("✅ Sent:", message);
-      } catch (err) {
-        alert("❌ Bluetooth error: " + err.message);
-      }
-    }
-
-    // 🎢 Call this from ride trigger:
-    function triggerRideLight(rideId) {
-      sendToMicrobit("ride:" + rideId);
-    }
-
-    // 🎉 Call this from Party Mode:
-    function sendPartySignal() {
-      sendToMicrobit("party");
-    }
-  </script>
+  <script src="microbit.js"></script>
 </body>
 </html>
