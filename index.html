@@ -586,6 +586,10 @@
           <span class="emoji">📝</span>
           <span>Notes</span>
         </a>
+        <a class="menu-btn" href="#microbit-page" onclick="openMicrobit()">
+          <span class="emoji">💡</span>
+          <span>LED Ring</span>
+        </a>
       </div>
 
       <button class="reset-btn" onclick="resetProgress()">🔄 Start New Adventure</button>
@@ -837,6 +841,17 @@
       <div class="section-header">Your Notes</div>
       <ul id="others-list" style="list-style:none;padding:0;"></ul>
   </div>
+  <!-- MICROBIT PAGE -->
+  <div id="microbit-page" class="page">
+      <a class="back-btn" href="#main-menu" onclick="goHome()">← Back to Parks</a>
+      <div class="park-title">💡 LED Ring Control</div>
+      <div id="microbit-message" style="margin-bottom:1rem;">Status: Disconnected</div>
+      <button class="modal-btn" id="microbit-connect">Connect to micro:bit</button>
+      <div style="margin-top:1rem;display:flex;gap:1rem;flex-wrap:wrap;">
+        <button class="modal-btn" id="microbit-rainbow">Show Rainbow</button>
+        <button class="modal-btn" id="microbit-off">Turn Off LEDs</button>
+      </div>
+  </div>
   </main>
   <!-- Welcome Modal -->
   <div id="welcome-modal" class="modal" style="display:none;">
@@ -1058,6 +1073,54 @@
     function closeLinks() {
       document.getElementById("links-modal").style.display = "none";
     }
+
+    function openMicrobit() {
+      showPage('microbit-page');
+    }
+
+    // Web Bluetooth for micro:bit LED Ring
+    const UART_SERVICE = '0000ffe5-0000-1000-8000-00805f9b34fb';
+    const UART_TX = '0000ffe3-0000-1000-8000-00805f9b34fb';
+    let microbitChar = null;
+
+    function updateMicrobitStatus(msg) {
+      const el = document.getElementById('microbit-message');
+      if (el) el.textContent = msg;
+    }
+
+    async function connectMicrobit() {
+      try {
+        updateMicrobitStatus('Connecting...');
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [UART_SERVICE] }]
+        });
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService(UART_SERVICE);
+        microbitChar = await service.getCharacteristic(UART_TX);
+        updateMicrobitStatus('Connected');
+      } catch (e) {
+        console.error(e);
+        updateMicrobitStatus('Connection failed');
+      }
+    }
+
+    function sendMicrobit(cmd) {
+      if (!microbitChar) {
+        updateMicrobitStatus('Not connected');
+        return;
+      }
+      const data = new TextEncoder().encode(cmd);
+      microbitChar.writeValue(data).then(() => {
+        updateMicrobitStatus('Command sent');
+      }).catch(err => {
+        console.error(err);
+        updateMicrobitStatus('Send failed');
+      });
+    }
+
+    document.getElementById('microbit-connect')?.addEventListener('click', connectMicrobit);
+    document.getElementById('microbit-rainbow')?.addEventListener('click', () => sendMicrobit('RAINBOW'));
+    document.getElementById('microbit-off')?.addEventListener('click', () => sendMicrobit('OFF'));
 
     function toggleTheme() {
       document.body.classList.toggle('light');
