@@ -1,4 +1,4 @@
-const CACHE_NAME = 'park-companion-v3';
+const CACHE_NAME = 'park-companion-v4';
 const OFFLINE_URLS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const OFFLINE_URLS = [
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png'
+  ,'./microbit.js'
 ];
 
 self.addEventListener('install', event => {
