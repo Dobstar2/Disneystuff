@@ -519,17 +519,7 @@
       font-size: 1.1rem;
     }
     /* Ride card statuses */
-    .ride-card.want { background: rgba(253, 186, 116, 0.1); border-color: var(--warning); }
-    .ride-card.want .star { display:block; }
-    .ride-card .star {
-      position: absolute;
-      top: 0.8rem;
-      left: 0.8rem;
-      font-size: 1.3rem;
-      color: var(--warning);
-      display: none;
-      filter: drop-shadow(0 0 6px rgba(255,255,255,0.4));
-    }
+    /* Completed ride indicator */
     .ride-card .details { font-size: 0.8rem; color: var(--text-secondary); }
     body.light {
       --bg-gradient-start: #fdfcfb;
@@ -1452,7 +1442,7 @@
         const key = `${park}-ride-${area}-${idx}`;
         const status = rideStatus[key] || '';
         const card = document.createElement("div");
-        card.className = "ride-card glass-card" + (status === 'done' ? " done" : status === 'want' ? ' want' : '');
+        card.className = "ride-card glass-card" + (status === 'done' ? " done" : '');
         card.innerHTML = `
           <div class="card-content">
             <span class="card-emoji">${ride.emoji}</span>
@@ -1463,20 +1453,15 @@
               <div class="card-tip">${ride.tip}</div>
               <div class="card-wait"></div>
             </div>
-            <span class="star">★</span>
             <span class="tick">✔️</span>
           </div>`;
         card.onclick = function() {
           if (rideStatus[key] === 'done') {
             delete rideStatus[key];
             card.classList.remove('done');
-          } else if (rideStatus[key] === 'want') {
-            rideStatus[key] = 'done';
-            card.classList.remove('want');
-            card.classList.add('done');
           } else {
-            rideStatus[key] = 'want';
-            card.classList.add('want');
+            rideStatus[key] = 'done';
+            card.classList.add('done');
           }
           localStorage.setItem('rideStatus', JSON.stringify(rideStatus));
           checkBadge(grid);
