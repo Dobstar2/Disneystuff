@@ -539,10 +539,10 @@
       <button class="back-btn" onclick="goHome()">← Back</button>
       <div class="park-title">🏰 Disney Parks</div>
       <div class="main-menu-grid">
-        <button class="menu-btn" onclick="openPark('MK')">
+        <a class="menu-btn" href="magic-kingdom.html">
           <span class="emoji">🏰</span>
           <span>Magic Kingdom</span>
-        </button>
+        </a>
         <button class="menu-btn" onclick="openPark('EPCOT')">
           <span class="emoji">🌐</span>
           <span>EPCOT</span>
@@ -850,9 +850,18 @@
       html.style.scrollBehavior = prevBehavior;
     }
 
+    function handleHashNavigation() {
+      const id = location.hash.slice(1);
+      if (id) {
+        showPage(id);
+      }
+    }
+    window.addEventListener('hashchange', handleHashNavigation);
+    document.addEventListener('DOMContentLoaded', handleHashNavigation);
+
     // Navigation functions
     function openPark(park) {
-      showPage('park-' + park);
+      location.hash = 'park-' + park;
     }
     function openPlanner() {
       showPage('planner-page');
