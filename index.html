@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <title>Dobbies Magical Park Guide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#2a1b3d">
+  <meta name="theme-color" content="#1a1a2e">
+  <link rel="apple-touch-icon" href="/Disneystuff/icons/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Dobbies Guide">
   <meta name="apple-touch-fullscreen" content="yes">
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="/Disneystuff/manifest.json">
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
   <style>
     :root {
@@ -552,6 +553,7 @@
       <a href="#others-page" onclick="openOthers()">Tips</a>
     </div>
     <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">🌙</button>
+    <button id="install-btn" style="display:none" onclick="promptInstall()" aria-label="Install app">⬇️</button>
   </nav>
 
   <main class="container">
@@ -1910,7 +1912,25 @@
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
+      navigator.serviceWorker.register('/Disneystuff/sw.js');
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const btn = document.getElementById('install-btn');
+      if (btn) btn.style.display = 'inline';
+    });
+    function promptInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+          const btn = document.getElementById('install-btn');
+          if (btn) btn.style.display = 'none';
+        });
+      }
     }
   </script>
 </body>
