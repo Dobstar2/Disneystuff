@@ -492,12 +492,68 @@
     #links-modal a { color: var(--accent); text-decoration: none; }
     #links-modal .close-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; color: var(--text-primary); font-size: 1.2rem; cursor: pointer; }
     #map-container iframe { width:100%; height:100%; border:0; }
+    /* Sticky navigation */
+    .sticky-nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg-dark);
+      padding: 0.5rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .sticky-nav a {
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 600;
+      margin-right: 1rem;
+    }
+    .sticky-nav a:hover { color: var(--accent); }
+    .sticky-nav button {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    /* Ride card statuses */
+    .ride-card.want { background: rgba(253, 186, 116, 0.1); border-color: var(--warning); }
+    .ride-card.want .star { display:block; }
+    .ride-card .star {
+      position: absolute;
+      top: 0.8rem;
+      left: 0.8rem;
+      font-size: 1.3rem;
+      color: var(--warning);
+      display: none;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.4));
+    }
+    .ride-card .details { font-size: 0.8rem; color: var(--text-secondary); }
+    body.light {
+      --bg-gradient-start: #fdfcfb;
+      --bg-gradient-end: #e2d9f3;
+      --text-primary: #1e1b3d;
+      --text-secondary: #374151;
+      --glass-bg: rgba(255,255,255,0.8);
+      --glass-border: rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
   <div class="bg-animated"></div>
   <div class="particles" id="particles"></div>
-  
+  <nav class="sticky-nav">
+    <div>
+      <a href="#main-menu">Home</a>
+      <a href="#disney-menu">Parks</a>
+      <a href="#planner-page" onclick="openPlanner()">Plan</a>
+      <a href="#others-page" onclick="openOthers()">Tips</a>
+    </div>
+    <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">🌙</button>
+  </nav>
+
   <main class="container">
     <!-- Main Menu -->
     <div id="main-menu" class="page active">
@@ -506,95 +562,95 @@
       <div class="author">Explore parks, check off rides, uncover secrets, and plan your magical day. Reset anytime to start fresh!</div>
       
       <div class="main-menu-grid">
-        <button class="menu-btn" onclick="openDisney()">
+        <a class="menu-btn" href="#disney-menu" onclick="openDisney()">
           <span class="emoji">🏰</span>
           <span>Disney Parks</span>
-        </button>
-        <button class="menu-btn" onclick="openUniversal()">
+        </a>
+        <a class="menu-btn" href="#universal-menu" onclick="openUniversal()">
           <span class="emoji">🧙‍♂️</span>
           <span>Universal Parks</span>
-        </button>
-        <button class="menu-btn" onclick="openMap()">
+        </a>
+        <a class="menu-btn" href="#map-page" onclick="openMap()">
           <span class="emoji">🗺️</span>
           <span>Park Map</span>
-        </button>
-        <button class="menu-btn" onclick="openParty()">
+        </a>
+        <a class="menu-btn" href="#party-page" onclick="openParty()">
           <span class="emoji">🎉</span>
           <span>Party Mode</span>
-        </button>
+        </a>
         <button class="menu-btn" onclick="openLinks()">
           <span class="emoji">🔗</span>
           <span>Helpful Links</span>
         </button>
-        <button class="menu-btn" onclick="openOthers()">
+        <a class="menu-btn" href="#others-page" onclick="openOthers()">
           <span class="emoji">📝</span>
           <span>Notes</span>
-        </button>
+        </a>
       </div>
 
       <button class="reset-btn" onclick="resetProgress()">🔄 Start New Adventure</button>
     </div>
     <!-- DISNEY MENU -->
     <div id="disney-menu" class="page">
-      <button class="back-btn" onclick="goHome()">← Back</button>
+      <a class="back-btn" href="#main-menu" onclick="goHome()">← Back</a>
       <div class="park-title">🏰 Disney Parks</div>
       <div class="main-menu-grid">
         <a class="menu-btn" href="magic-kingdom.html">
           <span class="emoji">🏰</span>
           <span>Magic Kingdom</span>
         </a>
-        <button class="menu-btn" onclick="openPark('EPCOT')">
+        <a class="menu-btn" href="#park-EPCOT" onclick="openPark('EPCOT')">
           <span class="emoji">🌐</span>
           <span>EPCOT</span>
-        </button>
-        <button class="menu-btn" onclick="openPark('HS')">
+        </a>
+        <a class="menu-btn" href="#park-HS" onclick="openPark('HS')">
           <span class="emoji">🎬</span>
           <span>Hollywood Studios</span>
-        </button>
-        <button class="menu-btn" onclick="openPark('AK')">
+        </a>
+        <a class="menu-btn" href="#park-AK" onclick="openPark('AK')">
           <span class="emoji">🦁</span>
           <span>Animal Kingdom</span>
-        </button>
-        <button class="menu-btn" onclick="openPlanner()">
+        </a>
+        <a class="menu-btn" href="#planner-page" onclick="openPlanner()">
           <span class="emoji">🗓️</span>
           <span>Plan Your Day</span>
-        </button>
-        <button class="menu-btn" onclick="openFood('disney')">
+        </a>
+        <a class="menu-btn" href="#food-page" onclick="openFood('disney')">
           <span class="emoji">🍔</span>
           <span>Food & Snacks</span>
-        </button>
-        <button class="menu-btn" onclick="openPhotos()">
+        </a>
+        <a class="menu-btn" href="#photo-page" onclick="openPhotos()">
           <span class="emoji">📸</span>
           <span>Photo Hunts</span>
-        </button>
+        </a>
       </div>
     </div>
     <!-- UNIVERSAL MENU -->
     <div id="universal-menu" class="page">
-      <button class="back-btn" onclick="goHome()">← Back</button>
+      <a class="back-btn" href="#main-menu" onclick="goHome()">← Back</a>
       <div class="park-title">🧙‍♂️ Universal Parks</div>
       <div class="main-menu-grid">
-        <button class="menu-btn" onclick="openPark('USF')">
+        <a class="menu-btn" href="#park-USF" onclick="openPark('USF')">
           <span class="emoji">🧙‍♂️</span>
           <span>Universal Studios Florida</span>
-        </button>
-        <button class="menu-btn" onclick="openPark('IOA')">
+        </a>
+        <a class="menu-btn" href="#park-IOA" onclick="openPark('IOA')">
           <span class="emoji">🦖</span>
           <span>Islands of Adventure</span>
-        </button>
-        <button class="menu-btn" onclick="openPark('EU')">
+        </a>
+        <a class="menu-btn" href="#park-EU" onclick="openPark('EU')">
           <span class="emoji">🌌</span>
           <span>Epic Universe</span>
-        </button>
-        <button class="menu-btn" onclick="openFood('universal')">
+        </a>
+        <a class="menu-btn" href="#food-page" onclick="openFood('universal')">
           <span class="emoji">🍔</span>
           <span>Food & Snacks</span>
-        </button>
+        </a>
       </div>
     </div>
     <!-- MAGIC KINGDOM -->
     <div id="park-MK" class="page">
-      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <a class="back-btn" href="#disney-menu" onclick="openDisney()">← Back</a>
       <div class="park-title">🏰 Magic Kingdom</div>
       <div class="section-header">Must-Do Rides</div>
       <div class="land-header">Fantasyland</div>
@@ -612,7 +668,7 @@
     </div>
     <!-- HOLLYWOOD STUDIOS -->
     <div id="park-HS" class="page">
-      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <a class="back-btn" href="#disney-menu" onclick="openDisney()">← Back</a>
       <div class="park-title">🎬 Hollywood Studios</div>
       <div class="section-header">Must-Do Rides</div>
       <div class="land-header">Star Wars: Galaxy's Edge</div>
@@ -626,7 +682,7 @@
     </div>
     <!-- ANIMAL KINGDOM -->
     <div id="park-AK" class="page">
-      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <a class="back-btn" href="#disney-menu" onclick="openDisney()">← Back</a>
       <div class="park-title">🦁 Animal Kingdom</div>
       <div class="section-header">Must-Do Rides</div>
       <div class="land-header">Pandora</div>
@@ -642,7 +698,7 @@
     </div>
     <!-- EPCOT -->
     <div id="park-EPCOT" class="page">
-      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <a class="back-btn" href="#disney-menu" onclick="openDisney()">← Back</a>
       <div class="park-title">🌐 EPCOT</div>
       <div class="section-header">Must-Do Rides</div>
       <div class="land-header">World Discovery</div>
@@ -654,7 +710,7 @@
     </div>
     <!-- UNIVERSAL STUDIOS FLORIDA -->
     <div id="park-USF" class="page">
-      <button class="back-btn" onclick="openUniversal()">← Back</button>
+      <a class="back-btn" href="#universal-menu" onclick="openUniversal()">← Back</a>
       <div class="park-title">🧙‍♂️ Universal Studios Florida</div>
       <div class="section-header">Must-Do Rides</div>
       <div class="land-header">Diagon Alley</div>
@@ -666,7 +722,7 @@
     </div>
     <!-- ISLANDS OF ADVENTURE -->
     <div id="park-IOA" class="page">
-      <button class="back-btn" onclick="openUniversal()">← Back</button>
+      <a class="back-btn" href="#universal-menu" onclick="openUniversal()">← Back</a>
       <div class="park-title">🦖 Islands of Adventure</div>
       <div class="section-header">Must-Do Rides</div>
       <div class="land-header">Jurassic Park</div>
@@ -678,7 +734,7 @@
     </div>
     <!-- EPIC UNIVERSE -->
     <div id="park-EU" class="page">
-      <button class="back-btn" onclick="openUniversal()">← Back</button>
+      <a class="back-btn" href="#universal-menu" onclick="openUniversal()">← Back</a>
       <div class="park-title">🌌 Epic Universe</div>
       <div class="section-header">Must-Do Rides</div>
       <div class="land-header">Celestial Park</div>
@@ -694,7 +750,7 @@
     </div>
     <!-- DAY PLANNER -->
     <div id="planner-page" class="page">
-      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <a class="back-btn" href="#disney-menu" onclick="openDisney()">← Back</a>
       <div class="park-title">🗓️ Plan Your Day</div>
       <div class="planner-flex">
         <div class="planner-list">
@@ -726,7 +782,7 @@
     </div>
     <!-- FOOD TRACKER -->
     <div id="food-page" class="page">
-      <button class="back-btn" id="food-back-btn" onclick="openDisney()">← Back</button>
+      <a class="back-btn" id="food-back-btn" href="#disney-menu" onclick="openDisney()">← Back</a>
       <div class="park-title">🍔 Food & Snacks</div>
       <div class="filter-controls">
         <input type="text" id="food-search" placeholder="Search snacks...">
@@ -741,7 +797,7 @@
     </div>
     <!-- PHOTO HUNTS -->
     <div id="photo-page" class="page">
-      <button class="back-btn" onclick="openDisney()">← Back</button>
+      <a class="back-btn" href="#disney-menu" onclick="openDisney()">← Back</a>
       <div class="park-title">📸 Photo Hunts</div>
       <button class="camera-btn" onclick="launchCamera()">📷 Take Photo</button>
       <input type="file" id="camera-input" accept="image/*" capture="environment" style="display:none;">
@@ -749,14 +805,14 @@
     </div>
     <!-- PARK MAP -->
   <div id="map-page" class="page">
-    <button class="back-btn" onclick="goHome()">← Back to Parks</button>
+    <a class="back-btn" href="#main-menu" onclick="goHome()">← Back to Parks</a>
     <div class="park-title">🗺️ Park Map</div>
     <p>Grant location access to see where you are in the park.</p>
     <div id="map-container"><iframe id="map-frame" allowfullscreen title="Park map"></iframe></div>
   </div>
   <!-- PARTY MODE -->
   <div id="party-page" class="page">
-      <button class="back-btn" onclick="goHome()">← Back to Parks</button>
+      <a class="back-btn" href="#main-menu" onclick="goHome()">← Back to Parks</a>
       <div class="park-title">🎉 Party Mode</div>
       <p>Share your progress with friends. Use the link or scan the QR code.</p>
       <textarea id="party-code"></textarea>
@@ -772,7 +828,7 @@
     </div>
   <!-- OTHERS PAGE -->
   <div id="others-page" class="page">
-      <button class="back-btn" onclick="goHome()">← Back to Parks</button>
+      <a class="back-btn" href="#main-menu" onclick="goHome()">← Back to Parks</a>
       <div class="park-title">📝 Others</div>
       <div id="others-form" style="display:flex;gap:0.5rem;margin-bottom:1rem;">
         <input type="text" id="other-input" placeholder="Enter note..." style="flex:1;">
@@ -1003,6 +1059,16 @@
       document.getElementById("links-modal").style.display = "none";
     }
 
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+      localStorage.setItem('theme', document.body.classList.contains('light') ? 'light' : 'dark');
+    }
+
+    (function(){
+      const theme = localStorage.getItem('theme');
+      if (theme === 'light') document.body.classList.add('light');
+    })();
+
 
     function applyLinkProgress() {
       const params = new URLSearchParams(location.hash.substring(1) || location.search.substring(1));
@@ -1010,7 +1076,7 @@
       if (!code) return;
       try {
         const data = JSON.parse(atob(code));
-        localStorage.setItem('hiddenParkFullScreenCharlieRides', JSON.stringify(data.rides || {}));
+        localStorage.setItem('rideStatus', JSON.stringify(data.rides || {}));
         localStorage.setItem('hiddenParkFoodStatus', JSON.stringify(data.foodDone || {}));
         localStorage.setItem('hiddenParkFoodFav', JSON.stringify(data.foodFav || {}));
         localStorage.setItem('parkAchievements', JSON.stringify(data.achievements || {}));
@@ -1182,97 +1248,98 @@
     const rides = {
       MK: {
         fantasy: [
-          {emoji:"⛏️", name:"Seven Dwarfs Mine Train"},
-          {emoji:"🌊", name:"Tiana's Bayou Adventure (Log Flume)"},
-          {emoji:"🌍", name:"It's a Small World"}
+          {emoji:"⛏️", name:"Seven Dwarfs Mine Train", height:"38in", thrill:"Mild", summary:"Family coaster through the mines", tip:"Ride at rope drop"},
+          {emoji:"🌊", name:"Tiana's Bayou Adventure (Log Flume)", height:"40in", thrill:"Medium", summary:"Musical log flume adventure", tip:"Use Lightning Lane"},
+          {emoji:"🌍", name:"It's a Small World", height:"Any", thrill:"Low", summary:"Classic boat ride", tip:"Great mid-day"}
         ],
         frontier: [
-          {emoji:"🚂", name:"Big Thunder Mountain Railroad"}
+          {emoji:"🚂", name:"Big Thunder Mountain Railroad", height:"40in", thrill:"Medium", summary:"Runaway mine train", tip:"Ride at night"}
         ],
         adventure: [
-          {emoji:"🦜", name:"Jungle Cruise"},
-          {emoji:"🏴‍☠️", name:"Pirates of the Caribbean"}
+          {emoji:"🦜", name:"Jungle Cruise", height:"Any", thrill:"Low", summary:"Punny boat tour", tip:"Evening lines shorter"},
+          {emoji:"🏴‍☠️", name:"Pirates of the Caribbean", height:"Any", thrill:"Low", summary:"Sail with swashbucklers", tip:"Good during parades"}
         ],
         liberty: [
-          {emoji:"👻", name:"Haunted Mansion"}
+          {emoji:"👻", name:"Haunted Mansion", height:"Any", thrill:"Low", summary:"Spooky omnimover", tip:"Afternoon wait shortest"}
         ],
         tomorrow: [
-          {emoji:"🏍️", name:"TRON Lightcycle Run"}
+          {emoji:"🏍️", name:"TRON Lightcycle Run", height:"48in", thrill:"High", summary:"High-speed coaster", tip:"Virtual queue"}
         ]
       },
       HS: {
         sw: [
-          {emoji:"⭐", name:"Star Wars: Rise of the Resistance"},
-          {emoji:"🚀", name:"Millennium Falcon: Smugglers Run"}
+          {emoji:"⭐", name:"Star Wars: Rise of the Resistance", height:"40in", thrill:"High", summary:"Epic Star Wars escape", tip:"Grab Lightning Lane"},
+          {emoji:"🚀", name:"Millennium Falcon: Smugglers Run", height:"38in", thrill:"Medium", summary:"Pilot the Falcon", tip:"Try single rider"}
         ],
         toy: [
-          {emoji:"🐶", name:"Slinky Dog Dash"}
+          {emoji:"🐶", name:"Slinky Dog Dash", height:"38in", thrill:"Medium", summary:"Family coaster in Toy Story Land", tip:"Ride early"}
         ],
         sunset: [
-          {emoji:"🏨", name:"Tower of Terror"}
+          {emoji:"🏨", name:"Tower of Terror", height:"40in", thrill:"High", summary:"Drop tower thrills", tip:"Ride after dark"}
         ]
       },
       AK: {
         pandora: [
-          {emoji:"🦋", name:"Avatar Flight of Passage"},
-          {emoji:"🛶", name:"Na'vi River Journey"}
+          {emoji:"🦋", name:"Avatar Flight of Passage", height:"44in", thrill:"High", summary:"Immersive flying ride", tip:"Lines shortest at close"},
+          {emoji:"🛶", name:"Na'vi River Journey", height:"Any", thrill:"Low", summary:"Scenic boat ride", tip:"Ride during rain"}
         ],
         africa: [
-          {emoji:"🦁", name:"Kilimanjaro Safaris"}
+          {emoji:"🦁", name:"Kilimanjaro Safaris", height:"Any", thrill:"Low", summary:"See live animals", tip:"Morning best for animals"}
         ],
         asia: [
-          {emoji:"⛰️", name:"Expedition Everest"},
-          {emoji:"🌊", name:"Kali River Rapids"}
+          {emoji:"⛰️", name:"Expedition Everest", height:"44in", thrill:"High", summary:"Coaster with Yeti", tip:"Evening lines light"},
+          {emoji:"🌊", name:"Kali River Rapids", height:"38in", thrill:"Medium", summary:"Rafting adventure", tip:"Great on hot days"}
         ],
         dino: [
-          {emoji:"🦖", name:"DINOSAUR"}
+          {emoji:"🦖", name:"DINOSAUR", height:"40in", thrill:"High", summary:"Time-travel ride", tip:"Afternoon is quieter"}
         ]
       },
       EPCOT: {
         discovery: [
-          {emoji:"🚀", name:"Guardians of the Galaxy: Cosmic Rewind"}
+          {emoji:"🚀", name:"Guardians of the Galaxy: Cosmic Rewind", height:"42in", thrill:"High", summary:"Spinning coaster", tip:"Virtual queue"}
         ],
         test: [
-          {emoji:"🏎️", name:"Test Track"}
+          {emoji:"🏎️", name:"Test Track", height:"40in", thrill:"High", summary:"Design and test a car", tip:"Use single rider"}
         ]
       },
       USF: {
         diagon: [
-          {emoji:"🐉", name:"Harry Potter and the Escape from Gringotts"}
+          {emoji:"🐉", name:"Harry Potter and the Escape from Gringotts", height:"42in", thrill:"Medium", summary:"Multi-dimensional coaster", tip:"Ride late evening"}
         ],
         hogwarts: [
-          {emoji:"🚂", name:"Hogwarts Express"}
+          {emoji:"🚂", name:"Hogwarts Express", height:"Any", thrill:"Low", summary:"Train between parks", tip:"Great mid-day"}
         ]
       },
       IOA: {
         jurassic: [
-          {emoji:"🎢", name:"Jurassic World VelociCoaster"},
-          {emoji:"🚤", name:"Jurassic Park River Adventure"}
+          {emoji:"🎢", name:"Jurassic World VelociCoaster", height:"51in", thrill:"High", summary:"Extreme coaster", tip:"Early entry"},
+          {emoji:"🚤", name:"Jurassic Park River Adventure", height:"42in", thrill:"Medium", summary:"Water ride with big splash", tip:"Good midday"}
         ],
         hogsmeade: [
-          {emoji:"🏍️", name:"Hagrid's Magical Creatures Motorbike Adventure"},
-          {emoji:"🧙‍♂️", name:"Harry Potter and the Forbidden Journey"}
+          {emoji:"🏍️", name:"Hagrid's Magical Creatures Motorbike Adventure", height:"48in", thrill:"High", summary:"Story coaster", tip:"Lines drop at night"},
+          {emoji:"🧙‍♂️", name:"Harry Potter and the Forbidden Journey", height:"48in", thrill:"High", summary:"Ride through Hogwarts", tip:"Use lockers early"}
         ]
       },
       EU: {
         celestial: [
-          {emoji:"🚗", name:"Starfall Racers"}
+          {emoji:"🚗", name:"Starfall Racers", height:"48in", thrill:"High", summary:"Dual-launch coaster", tip:"Try front row"}
         ],
         ministry: [
-          {emoji:"🎩", name:"Harry Potter and the Ministry of Magic"}
+          {emoji:"🎩", name:"Harry Potter and the Ministry of Magic", height:"42in", thrill:"Medium", summary:"Dark ride adventure", tip:"Afternoon shade"}
         ],
         snw: [
-          {emoji:"🏎️", name:"Bowser’s Challenge"},
-          {emoji:"⛏️", name:"Minecart Madness"}
+          {emoji:"🏎️", name:"Bowser’s Challenge", height:"40in", thrill:"Medium", summary:"Interactive kart race", tip:"Stay to the left"},
+          {emoji:"⛏️", name:"Minecart Madness", height:"36in", thrill:"Mild", summary:"Family coaster", tip:"Fun anytime"}
         ],
         berk: [
-          {emoji:"🐉", name:"Hiccup’s Wing Gliders"},
-          {emoji:"🐲", name:"Dragon Racer Rally"}
+          {emoji:"🐉", name:"Hiccup’s Wing Gliders", height:"40in", thrill:"Medium", summary:"Soar with dragons", tip:"Morning best"},
+          {emoji:"🐲", name:"Dragon Racer Rally", height:"36in", thrill:"Mild", summary:"Spinner ride", tip:"Good for kids"}
         ]
       }
     };
     const parkList = ["MK","EPCOT","HS","AK","USF","IOA","EU"];
     const saved = JSON.parse(localStorage.getItem("hiddenParkFullScreenCharlieRides") || "{}");
+    const rideStatus = JSON.parse(localStorage.getItem('rideStatus') || '{}');
     const foodDone = JSON.parse(localStorage.getItem('hiddenParkFoodStatus') || '{}');
     const foodFav = JSON.parse(localStorage.getItem('hiddenParkFoodFav') || '{}');
     const achievements = JSON.parse(localStorage.getItem('parkAchievements') || '{}');
@@ -1382,21 +1449,35 @@
       const grid = document.getElementById(gridId);
       rideArr.forEach((ride, idx) => {
         const key = `${park}-ride-${area}-${idx}`;
+        const status = rideStatus[key] || '';
         const card = document.createElement("div");
-        card.className = "ride-card glass-card" + (saved[key] ? " done" : "");
+        card.className = "ride-card glass-card" + (status === 'done' ? " done" : status === 'want' ? ' want' : '');
         card.innerHTML = `
           <div class="card-content">
             <span class="card-emoji">${ride.emoji}</span>
             <div class="card-info">
               <div class="card-name">${ride.name}</div>
+              <div class="details">${ride.height ? 'Min ' + ride.height + ' • ' : ''}${ride.thrill}</div>
+              <div class="card-desc">${ride.summary}</div>
+              <div class="card-tip">${ride.tip}</div>
               <div class="card-wait"></div>
             </div>
+            <span class="star">★</span>
             <span class="tick">✔️</span>
           </div>`;
-        card.onclick = function(e) {
-          card.classList.toggle("done");
-          saved[key] = card.classList.contains("done");
-          localStorage.setItem("hiddenParkFullScreenCharlieRides", JSON.stringify(saved));
+        card.onclick = function() {
+          if (rideStatus[key] === 'done') {
+            delete rideStatus[key];
+            card.classList.remove('done');
+          } else if (rideStatus[key] === 'want') {
+            rideStatus[key] = 'done';
+            card.classList.remove('want');
+            card.classList.add('done');
+          } else {
+            rideStatus[key] = 'want';
+            card.classList.add('want');
+          }
+          localStorage.setItem('rideStatus', JSON.stringify(rideStatus));
           checkBadge(grid);
         };
         grid.appendChild(card);
@@ -1779,7 +1860,7 @@
     }
     function exportProgress() {
       const data = {
-        rides: saved,
+        rides: rideStatus,
         foodDone,
         foodFav,
         achievements,
@@ -1805,7 +1886,7 @@
           code = input;
         }
         const data = JSON.parse(atob(code));
-        localStorage.setItem('hiddenParkFullScreenCharlieRides', JSON.stringify(data.rides || {}));
+        localStorage.setItem('rideStatus', JSON.stringify(data.rides || {}));
         localStorage.setItem('hiddenParkFoodStatus', JSON.stringify(data.foodDone || {}));
         localStorage.setItem('hiddenParkFoodFav', JSON.stringify(data.foodFav || {}));
         localStorage.setItem('parkAchievements', JSON.stringify(data.achievements || {}));
@@ -1814,7 +1895,8 @@
       } catch(e) { alert('Invalid code'); }
     }
     function resetProgress() {
-      localStorage.removeItem("hiddenParkFullScreenCharlieRides");
+      localStorage.removeItem('rideStatus');
+      localStorage.removeItem('hiddenParkFullScreenCharlieRides');
       localStorage.removeItem('hiddenParkFoodStatus');
       localStorage.removeItem('hiddenParkFoodFav');
       localStorage.removeItem('parkAchievements');
