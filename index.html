@@ -1917,5 +1917,41 @@
       document.body.appendChild(msg);
     });
   </script>
+  <script>
+    let device, writer;
+
+    async function connectMicrobit() {
+      if (!device) {
+        device = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: "BBC micro:bit" }],
+          optionalServices: [0x6e400001b5a3f393e0a9e50e24dcca9e]
+        });
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
+        writer = await service.getCharacteristic("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+      }
+    }
+
+    async function sendToMicrobit(message) {
+      try {
+        await connectMicrobit();
+        const data = new TextEncoder().encode(message + "\n");
+        await writer.writeValue(data);
+        console.log("✅ Sent:", message);
+      } catch (err) {
+        alert("❌ Bluetooth error: " + err.message);
+      }
+    }
+
+    // 🎢 Call this from ride trigger:
+    function triggerRideLight(rideId) {
+      sendToMicrobit("ride:" + rideId);
+    }
+
+    // 🎉 Call this from Party Mode:
+    function sendPartySignal() {
+      sendToMicrobit("party");
+    }
+  </script>
 </body>
 </html>
