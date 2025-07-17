@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Microbit LED Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <h2>Micro:bit LED Control</h2>
+  <button onclick="connectToMicrobit()">🔌 Connect to micro:bit</button>
+  <button onclick="sendCommand('RAINBOW')">🌈 Show Rainbow</button>
+  <button onclick="sendCommand('OFF')">🕶️ Turn Off</button>
+  <p id="status">Status: Not connected</p>
+
+  <script>
+    let txCharacteristic;
+
+    async function connectToMicrobit() {
+      try {
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ namePrefix: 'BBC micro:bit' }],
+          optionalServices: ['0000ffe5-0000-1000-8000-00805f9b34fb']
+        });
+
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService('0000ffe5-0000-1000-8000-00805f9b34fb');
+        txCharacteristic = await service.getCharacteristic('0000ffe3-0000-1000-8000-00805f9b34fb');
+
+        document.getElementById('status').innerText = "✅ Connected to micro:bit";
+      } catch (error) {
+        document.getElementById('status').innerText = "❌ Connection failed: " + error;
+      }
+    }
+
+    async function sendCommand(command) {
+      if (!txCharacteristic) {
+        alert("Please connect first.");
+        return;
+      }
+
+      const encoder = new TextEncoder();
+      await txCharacteristic.writeValue(encoder.encode(command + "\n"));
+      document.getElementById('status').innerText = `📤 Sent: ${command}`;
+    }
+  </script>
+</body>
+</html>
